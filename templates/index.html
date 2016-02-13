@@ -28,6 +28,16 @@
     <!-- Custom Fonts -->
     <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <style>
+      .navbar-header {
+        min-height: 95px;
+      }
+
+      .sidebar {
+        margin-top: 80px;
+      }
+    </style>
+
   </head>
 
   <body leftmargin="50">
@@ -43,7 +53,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">TabulaRazr</a>
+                <a class="navbar-brand" href="index.html"><img src={{url_for('static', filename="logo.png")}}></a>
             </div>
             <!-- /.navbar-header -->
 
