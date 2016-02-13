@@ -28,9 +28,7 @@ Feature List Todo:
 """
 
 from __future__ import print_function
-import sys
-import os
-import re
+import sys, os, re
 
 import codecs
 import string
@@ -44,7 +42,7 @@ from flask import jsonify, render_template, make_response
 
 import numpy as np
 import pandas as pd
-
+import matplotlib.pyplot as plt
 
 from backend import return_tables, table_to_df
 
@@ -63,11 +61,11 @@ css = [
     #"./css/main.css",
     #"./css/style.css"
 ]
+
 js = [
     "./thirdparty/angular/angular.js"
 ]
 
-import matplotlib.pyplot as plt
 
 UPLOAD_FOLDER = './static/ug'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
@@ -162,10 +160,16 @@ def uploaded_file(filename):
     #plot the row density
     chart = filename+".png"
     fig, ax = plt.subplots( nrows=1, ncols=1, figsize=(8,3) )  # create figure & 1 axis
-    ax.set_xlabel('page nr.')
-    ax.set_ylabel('number of data rows')
-    ax.set_title('Distribution of Rows with Data')
-    ax.plot(dr['page'], dr['value'], )
+    ax.set_ylabel('page number')
+    ax.set_xlabel('number of data rows')
+    ax.set_title('Distribution of Data Rows per Page')
+    
+    BARHEIGHT = 0.4
+    ax.barh(1 + np.array(dr['page']) - BARHEIGHT/2.0 , dr['value'], BARHEIGHT )
+
+    xticks = np.arange(1, np.ceil(max( dr['page'] )) + 2 )
+    ax.set_yticks(xticks)
+    fig.tight_layout()
     fig.savefig('./static/ug/'+chart)   # save the figure to file
     plt.close(fig)                      # close the figure
 
