@@ -36,14 +36,6 @@ import string
 
 from collections import Counter, OrderedDict
 
-
-config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
-          "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
-         "header_good_candidate_length" : 3, "complex_leftover_threshold" : 2, "min_canonical_rows" : 0.2}
-
-
-# In[3]:
-
 import json
 from flask import Flask, request, redirect, url_for, send_from_directory
 from werkzeug import secure_filename
@@ -52,6 +44,16 @@ from flask import jsonify, render_template, make_response
 import numpy as np
 import pandas as pd
 
+
+config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
+          "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
+         "header_good_candidate_length" : 3, "complex_leftover_threshold" : 2, "min_canonical_rows" : 0.2}
+
+
+def read_lines( test_file ):
+    with open(test_file) as ff: 
+        for line in ff:
+            yield line
 
 # ## Tokenize and Tag ##
 
@@ -581,116 +583,13 @@ else:
 
 #
 # ## Tests ##
-
-# In[ ]:
-
-test_string = """TO THE PAYMENT OF THE PRINCIPAL OF OR INTEREST ON THE SERIES 2013 BONDS. THE OBLIGATION OF THE CITY OF FLINT TO MAKE PAYMENTS OF
-CASH RENTALS IS A SPECIAL, LIMITED OBLIGATION OF THE CITY OF FLINT PAYABLE SOLELY FROM THE NET REVENUES OF THE MEDICAL CENTER. THE
-AUTHORITY HAS NO TAXING POWER.
-                                                   AMOUNT, MATURITY, INTEREST RATE, PRICE, YIELD AND CUSIP†
-                                                                              Series 2013A Bonds
-                               $5,580,000      5.000%      Term Bonds due July 1, 2023 Price 104.077% to Yield 4.500%               CUSIP†: 339510BQ1
-                               $8,355,000      5.250%      Term Bonds due July 1, 2028 Price 102.796%* to Yield 4.900%              CUSIP†: 339510BR9
-                               $8,005,000      5.250%      Term Bonds due July 1, 2039 Price 99.286% to Yield 5.300%                CUSIP†: 339510BT5
-                              _____________________
-                              * Priced to the call date.
-                                                                                 Series 2013B Bonds
-                                                                              $12,290,000 Serial Bonds
-                                            Maturity                                Interest
-                                            (July 1)             Amount               Rate           Price                        CUSIP†
-                                              2013               $555,000             5.000%        100.794%                     339511DT1
-                                              2015              $1,235,000            5.000%        105.314%                     339511DV6
-                                              2018              $5,150,000            3.750%        101.785%                     339511DY0
-                                              2019              $2,350,000            4.000%        101.655%                     339511DZ7
-                                              2019              $3,000,000            5.000%        107.186%                     339511EA1
-                                                                              $24,300,000 Term Bonds
-                              $9,790,000      3.500%       Term Bonds due July 1, 2017       Price 101.976% to Yield 3.000%         CUSIP†: 339511DX2
-                              $8,560,000      4.750%       Term Bonds due July 1, 2023       Price 102.027% to Yield 4.500%         CUSIP†: 339511EC7
-                              $5,950,000      4.750%       Term Bonds due July 1, 2028       Price 97.347% to Yield 5.000%          CUSIP†: 339511ED5
-     The Series 2013 Bonds are being offered when, as and if issued and received by the Underwriter, subject to prior sale, withdrawal or modification of the offer
-without any notice, and to the approval of legality of the Series 2013 Bonds by Dickinson Wright PLLC, Troy, Michigan, Bond Counsel. Certain legal matters will be
-passed upon for the Medical Center by its General Counsel and for the Authority by its disclosure counsel, Miller, Canfield, Paddock and Stone, P.L.C., Ann Arbor,
-Michigan. It is expected that the Series 2013A Bonds in definitive form will be available for delivery to the Underwriter through the facilities of DTC on or about
-March 14, 2013 and that the Series 2013B Bonds in definitive form will be available for delivery to the Underwriter through the facilities of DTC on or about April 2, 2013.
-""".split("\n")
-
-
-# In[ ]:
-
-test_string = """
-   9
-
-                                                 CITY OF OAKLAND
-                        Management’s Discussion and Analysis (unaudited) (continued)
-                                        Year Ended June 30, 2015
-
-
-The following table indicates the changes in net position for governmental and business-type activities:
-
-                                                 Statement of Activities
-                                       For the Years Ended June 30, 2015 and 2014
-                                                      (In Thousands)
-                                                Governmental                 Business-Type
-                                                  Activitie s                  Activities                         Total
-                                               2015           2014          2015        2014               2015           2014
-Reve nue s:
-Program revenues:
-  Charges for services                    $     182,293     $ 152,674   $    57,839    $    53,449    $     240,132     $ 206,123
-  Operating grants and contributions             92,865       119,063             -              -           92,865       119,063
-  Capital grants and contributions               70,322        42,148             -              -           70,322        42,148
-General revenues:
-  Property taxes                                267,534       240,779             -              -          267,534        240,779
-    State taxes:
-    Sales and use taxes                          63,895        58,912             -              -           63,895         58,912
-    Gas tax                                      12,030        13,085             -              -           12,030         13,085
-  Local taxes:
-    Business license                             66,677        62,905             -              -           66,677         62,905
-    Utility consumption                          50,594        50,422             -              -           50,594         50,422
-    Real estate transfer                         62,665        59,060             -              -           62,665         59,060
-    Transient occupancy                 6         21,569        18,468             -              -           21,569         18,468
-    Parking                                      18,398        16,661             -              -           18,398         16,661
-    Voter approved special tax                   37,443        38,835             -              -           37,443         38,835
-    Franchise                                    18,150        16,666             -              -           18,150         16,666
-  Interest and investment income                  6,362         6,653           142            165            6,504          6,818
-  Other                                          12,745        19,671             -              -           12,745         19,671
-Total revenues                                  983,542       916,002        57,981         53,614        1,041,523        969,616
-Expenses:
- General government               $              82,493        79,806             -              -           82,493         79,806
- Public safety                                  383,904       379,809             -              -          383,904        379,809
- Community Services                             121,740       116,961             -              -          121,740        116,961
- Community & economic development                75,268        83,657             -              -           75,268         83,657
- Public works                                   105,619       109,177             -              -          105,619        109,177
- Interest on long-term debt                      68,033        59,026             -              -           68,033         59,026
- Sewer                                                -             -        36,957         37,306           36,957         37,306
- Parks and recreation                                 -             -           681            855              681            855
-Total expenses                                  837,057       828,436        37,638         38,161          874,695        866,597
-
-Change in net position before transfers         146,485        87,566        20,343         15,453          166,828        103,019
-Transfers                                         2,002         2,002        (2,002)        (2,002)               -              -
-Special Item - Transfer of excess tax
-allocation bond                                 107,696        88,309             -              -          107,696         88,309
-Change in net position                          256,183       177,877        18,341         13,451          274,524        191,328
-Net position at beginning of year               981,818       803,941       196,334        182,883        1,178,152        986,824
-Adjustment due to implementation of
-GASB Statement No. 68                         (1,506,760)                   (32,236)                      (1,538,996)             -
-Net position at end of year               $    (268,759)    $ 981,818   $ 182,439      $ 196,334      $     (86,320)    $ 1,178,152
-
-
-Governmental activities: Net position for governmental activities, excluding the special item of
-$107.7 million from ORSA transfer of excess bond proceeds to the City, decreased by $58.9 million during
-fiscal year 2014-15. Total revenue increased by 7.4 percent and expenses increased by 1.0 percent. During
-FY 2013-14, revenues increased at a rate of 10.8 percent and expenses increased by 5.6 percent.
-
-
-""".split("\n")
-
-
 # In[ ]:
 
 from IPython.display import display
 
 #print i, underqualified, last_qualified, consecutive#, "" or row
-
+test_file = "test_input1.txt"
+read_lines( test_file )
 rows = [row_feature(l) for l in test_string]
 
 for b, e in filter_row_spans(rows, row_qualifies):
@@ -715,206 +614,10 @@ for begin_line, t in tables.items():
     display(df)
 
 
-# In[ ]:
-
-test_string ="""
-        The following table sets forth statistical information relating to the Water System during the five
-Fiscal Years shown.
-                                                 TABLE 1
-                                   WATER SYSTEM STATISTICS
-                                                                               Fiscal Year Ended June 30
-                                                                  2014         2013       2012     2011      2010
-Anaheim Population Served ..................................     348,305      346,161   343,793   341,034   336,265
-Population Served Outside City (Est.) ...................          8,457        9,000     9,000     9,000     9,000
-        Total Population Served ...........................      356,762      355,161   352,793   350,034   345,265
-
-  Total Water Sales (Million Gallons) ...................         20,740       20,465    19,672    19,526    20,488
-
-Capacity (Million Gallons Per Day)
-  From MWD Connections ...................................             110       110       110       110       110
-  From Water System Wells (Average) ...............                     79        86        88        81        75
-        Total Supply Capacity .............................            189       196       198       191       185
-
-   Treatment Plant Capacity ..................................          15        15        15        15        15
-
-Peak Day Distribution (Million Gallons) ...............                82.2      78.7     79.2      87.2      87.2
-Average Daily Distribution (Million Gallons) .......                   60.3      58.9     57.3      59.4      56.1
-Average Daily Sales Per Capita (Gallons) .............                159.3     157.9    152.8     152.8     162.6
-__________________
-Source: Anaheim
-
-Existing Facilities
-
-""".decode('ascii', 'ignore').split("\n")
-
-
-# In[ ]:
-
-test_string ="""
-                         CALIFORNIA MUNICIPAL FINANCE AUTHORITY
-                                   Revenue Bonds, Series 2015-A
-                              (City of Anaheim Water System Project)
-
-                                          MATURITY SCHEDULE
-
-                                            $58,205,000 Serial Bonds
-
-  Maturity Date              Principal                Interest
-   (October 1)               Amount                     Rate                   Yield                  CUSIP†
-       2015                 $ 775,000                 2.000%                   0.100%             13048TTV5
-       2016                  1,575,000                2.000                    0.300              13048TTW3
-       2017                  1,620,000                3.000                    0.660              13048TTX1
-       2018                  1,675,000                4.000                    0.930              13048TTY9
-       2019                  2,045,000                5.000                    1.150              13048TTZ6
-       2020                  2,155,000                5.000                    1.320              13048TUA9
-       2021                  2,250,000                4.000                    1.520              13048TUB7
-       2022                  2,610,000                5.000                    1.670              13048TUC5
-       2023                  2,730,000                4.000                    1.810              13048TUD3
-       2024                  2,875,000                5.000                    1.920              13048TUE1
-       2025                  3,025,000                5.000                    2.030(c)           13048TUF8
-       2026                  3,190,000                5.000                    2.200(c)           13048TUG6
-       2027                  3,355,000                5.000                    2.320(c)           13048TUH4
-       2028                  3,520,000                5.000                    2.450(c)           13048TUJ0
-       2029                  3,700,000                5.000                    2.520(c)           13048TUK7
-       2030                  3,880,000                5.000                    2.600(c)           13048TUL5
-       2031                  4,055,000                4.000                    3.140(c)           13048TUM3
-       2032                  4,220,000                4.000                    3.190(c)           13048TUN1
-       2033                  4,390,000                4.000                    3.230(c)           13048TUP6
-       2034                  4,560,000                4.000                    3.270(c)           13048TUQ4
-
-     $24,535,000 4.000% Term Bonds due October 1, 2040 – Yield: 3.400%(c); CUSIP†: 13048TUR2
-     $13,145,000 5.250% Term Bonds due October 1, 2045 – Yield: 2.970%(c); CUSIP†: 13048TUS0
-
-""".decode('ascii', 'ignore').split("\n")
-
-
-# In[ ]:
-
-test_string = """
-
-
-                                       SCHEDULED DEBT SERVICE
-        The scheduled debt service for the Bonds is as follows, assuming no optional redemptions prior to maturity:
-                               FORESTVILLE UNION SCHOOL DISTRICT
-                            General Obligation Bonds (Election of 2010, Series 2012)
-                                     Semi-Annual Debt Service Payments
-
-                                                             Compounded         Total Periodic    Total Annual Debt
-Period Ending        Principal            Interest             Interest         Debt Service            Service
- Feb. 1, 2013                –              $57,033.85                 –             $57,033.85                –
- Aug. 1, 2013                –               37,331.25                 –              37,331.25          $94,365.10
- Feb. 1, 2014                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2014                –               37,331.25                 –              37,331.25           74,662.50
- Feb. 1, 2015                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2015                –               37,331.25                 –              37,331.25           74,662.50
- Feb. 1, 2016                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2016                –               37,331.25                 –              37,331.25           74,662.50
- Feb. 1, 2017                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2017                –               37,331.25                 –              37,331.25           74,662.50
- Feb. 1, 2018                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2018                –               37,331.25                 –              37,331.25           74,662.50
- Feb. 1, 2019                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2019                –               37,331.25                 –              37,331.25           74,662.50
- Feb. 1, 2020                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2020           $5,725.80            37,331.25            $9,274.20           52,331.25           89,662.50
- Feb. 1, 2021                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2021            5,095.95            37,331.25             9,904.05           52,331.25           89,662.50
- Feb. 1, 2022                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2022            6,047.20            37,331.25            13,952.80           57,331.25           94,662.50
- Feb. 1, 2023                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2023            6,727.50            37,331.25            18,272.50           62,331.25           99,662.50
- Feb. 1, 2024                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2024            7,184.70            37,331.25            22,815.30           67,331.25          104,662.50
- Feb. 1, 2025                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2025            7,460.25            37,331.25            27,539.75           72,331.25          109,662.50
- Feb. 1, 2026                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2026            6,639.50            37,331.25            28,360.50           72,331.25          109,662.50
- Feb. 1, 2027                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2027            7,597.35            37,331.25            37,402.65           82,331.25          119,662.50
- Feb. 1, 2028                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2028            6,761.70            37,331.25            38,238.30           82,331.25          119,662.50
- Feb. 1, 2029                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2029            6,686.50            37,331.25            43,313.50           87,331.25          124,662.50
- Feb. 1, 2030                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2030            6,546.10            37,331.25            48,453.90           92,331.25          129,662.50
- Feb. 1, 2031                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2031            6,885.45            37,331.25            58,114.55          102,331.25          139,662.50
- Feb. 1, 2032                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2032            6,598.90            37,331.25            63,401.10          107,331.25          144,662.50
- Feb. 1, 2033                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2033            6,292.50            37,331.25            68,707.50          112,331.25          149,662.50
- Feb. 1, 2034                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2034            6,346.95            37,331.25            78,653.05          122,331.25          159,662.50
- Feb. 1, 2035                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2035            5,649.10            37,331.25            79,350.90          122,331.25          159,662.50
- Feb. 1, 2036                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2036            5,619.25            37,331.25            89,380.75          132,331.25          169,662.50
- Feb. 1, 2037                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2037           44,881.20            37,331.25           375,118.80          457,331.25          494,662.50
- Feb. 1, 2038                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2038           92,550.60            37,331.25           342,449.40          472,331.25          509,662.50
- Feb. 1, 2039                –               37,331.25                 –              37,331.25                –
- Aug. 1, 2039          287,012.60            37,331.25           167,987.40          492,331.25          529,662.50
- Feb. 1, 2040                –               32,278.13                 –              32,278.13                –
- Aug. 1, 2040          480,000.00            32,278.13                 –             512,278.13          544,556.26
- Feb. 1, 2041                –               22,378.13                 –              22,378.13                –
- Aug. 1, 2041          520,000.00            22,378.13                 –             542,378.13          564,756.26
- Feb. 1, 2042                –               11,653.13                 –              11,653.13                –
- Aug. 1, 2042          565,000.00            11,653.13                 –             576,653.13          588,306.26
- TOTAL               2,099,309.10        $2,168,208.88        $1,620,690.90       $5,888,208.88       $5,888,208.88
-
-
-
-
-
-
-""".split("\n")
-
-
-# In[ ]:
-
-#How to split this one? Three distinct tables because different types (but matching)
-test_string = """
-    THE SERIES 2013 BONDS DO NOT CONSTITUTE A DEBT, LIABILITY OR OBLIGATION OF THE STATE OF MICHIGAN AND NEITHER THE FULL FAITH AND
-CREDIT NOR THE TAXING POWER OF THE STATE OF MICHIGAN, THE CITY OF FLINT OR ANY AGENCY OR POLITICAL SUBDIVISION THEREOF IS PLEDGED
-TO THE PAYMENT OF THE PRINCIPAL OF OR INTEREST ON THE SERIES 2013 BONDS. THE OBLIGATION OF THE CITY OF FLINT TO MAKE PAYMENTS OF
-CASH RENTALS IS A SPECIAL, LIMITED OBLIGATION OF THE CITY OF FLINT PAYABLE SOLELY FROM THE NET REVENUES OF THE MEDICAL CENTER. THE
-AUTHORITY HAS NO TAXING POWER.
-                                                   AMOUNT, MATURITY, INTEREST RATE, PRICE, YIELD AND CUSIP†
-                                                                              Series 2013A Bonds
-                               $5,580,000      5.000%      Term Bonds due July 1, 2023 Price 104.077% to Yield 4.500%               CUSIP†: 339510BQ1
-                               $8,355,000      5.250%      Term Bonds due July 1, 2028 Price 102.796%* to Yield 4.900%              CUSIP†: 339510BR9
-                               $8,005,000      5.250%      Term Bonds due July 1, 2039 Price 99.286% to Yield 5.300%                CUSIP†: 339510BT5
-                              _____________________
-                              * Priced to the call date.
-                                                                                 Series 2013B Bonds
-                                                                              $12,290,000 Serial Bonds
-                                            Maturity                                Interest
-                                            (July 1)             Amount               Rate           Price                        CUSIP†
-                                              2013               $555,000             5.000%        100.794%                     339511DT1
-                                              2015              $1,235,000            5.000%        105.314%                     339511DV6
-                                              2018              $5,150,000            3.750%        101.785%                     339511DY0
-                                              2019              $2,350,000            4.000%        101.655%                     339511DZ7
-                                              2019              $3,000,000            5.000%        107.186%                     339511EA1
-                                                                              $24,300,000 Term Bonds
-                              $9,790,000      3.500%       Term Bonds due July 1, 2017       Price 101.976% to Yield 3.000%         CUSIP†: 339511DX2
-                              $8,560,000      4.750%       Term Bonds due July 1, 2023       Price 102.027% to Yield 4.500%         CUSIP†: 339511EC7
-                              $5,950,000      4.750%       Term Bonds due July 1, 2028       Price 97.347% to Yield 5.000%          CUSIP†: 339511ED5
-     The Series 2013 Bonds are being offered when, as and if issued and received by the Underwriter, subject to prior sale, withdrawal or modification of the offer
-without any notice, and to the approval of legality of the Series 2013 Bonds by Dickinson Wright PLLC, Troy, Michigan, Bond Counsel. Certain legal matters will be
-passed upon for the Medical Center by its General Counsel and for the Authority by its disclosure counsel, Miller, Canfield, Paddock and Stone, P.L.C., Ann Arbor,
-Michigan. It is expected that the Series 2013A Bonds in definitive form will be available for delivery to the Underwriter through the facilities of DTC on or about
-March 14, 2013 and that the Series 2013B Bonds in definitive form will be available for delivery to the Underwriter through the facilities of DTC on or about April 2, 2013.
-     This cover page contains certain information for quick reference only. It is not a summary of the Series 2013 Bonds or the security for the Series 2013 Bonds.
-Potential investors must read the entire Official Statement, including the Appendices, to obtain information essential to the making of an informed investment decision.
-
-""".split("\n")
-
-
-# In[ ]:
-
 try:
     from IPython.display import display
+    test_file = "test_input6.txt"
+    read_lines( test_file )
 
     rows = [row_feature(l) for l in test_string]
 
