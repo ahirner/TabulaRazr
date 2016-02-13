@@ -1,0 +1,64 @@
+   9
+
+                                                 CITY OF OAKLAND
+                        Management’s Discussion and Analysis (unaudited) (continued)
+                                        Year Ended June 30, 2015
+
+
+The following table indicates the changes in net position for governmental and business-type activities:
+
+                                                 Statement of Activities
+                                       For the Years Ended June 30, 2015 and 2014
+                                                      (In Thousands)
+                                                Governmental                 Business-Type
+                                                  Activitie s                  Activities                         Total
+                                               2015           2014          2015        2014               2015           2014
+Reve nue s:
+Program revenues:
+  Charges for services                    $     182,293     $ 152,674   $    57,839    $    53,449    $     240,132     $ 206,123
+  Operating grants and contributions             92,865       119,063             -              -           92,865       119,063
+  Capital grants and contributions               70,322        42,148             -              -           70,322        42,148
+General revenues:
+  Property taxes                                267,534       240,779             -              -          267,534        240,779
+    State taxes:
+    Sales and use taxes                          63,895        58,912             -              -           63,895         58,912
+    Gas tax                                      12,030        13,085             -              -           12,030         13,085
+  Local taxes:
+    Business license                             66,677        62,905             -              -           66,677         62,905
+    Utility consumption                          50,594        50,422             -              -           50,594         50,422
+    Real estate transfer                         62,665        59,060             -              -           62,665         59,060
+    Transient occupancy                 6         21,569        18,468             -              -           21,569         18,468
+    Parking                                      18,398        16,661             -              -           18,398         16,661
+    Voter approved special tax                   37,443        38,835             -              -           37,443         38,835
+    Franchise                                    18,150        16,666             -              -           18,150         16,666
+  Interest and investment income                  6,362         6,653           142            165            6,504          6,818
+  Other                                          12,745        19,671             -              -           12,745         19,671
+Total revenues                                  983,542       916,002        57,981         53,614        1,041,523        969,616
+Expenses:
+ General government               $              82,493        79,806             -              -           82,493         79,806
+ Public safety                                  383,904       379,809             -              -          383,904        379,809
+ Community Services                             121,740       116,961             -              -          121,740        116,961
+ Community & economic development                75,268        83,657             -              -           75,268         83,657
+ Public works                                   105,619       109,177             -              -          105,619        109,177
+ Interest on long-term debt                      68,033        59,026             -              -           68,033         59,026
+ Sewer                                                -             -        36,957         37,306           36,957         37,306
+ Parks and recreation                                 -             -           681            855              681            855
+Total expenses                                  837,057       828,436        37,638         38,161          874,695        866,597
+
+Change in net position before transfers         146,485        87,566        20,343         15,453          166,828        103,019
+Transfers                                         2,002         2,002        (2,002)        (2,002)               -              -
+Special Item - Transfer of excess tax
+allocation bond                                 107,696        88,309             -              -          107,696         88,309
+Change in net position                          256,183       177,877        18,341         13,451          274,524        191,328
+Net position at beginning of year               981,818       803,941       196,334        182,883        1,178,152        986,824
+Adjustment due to implementation of
+GASB Statement No. 68                         (1,506,760)                   (32,236)                      (1,538,996)             -
+Net position at end of year               $    (268,759)    $ 981,818   $ 182,439      $ 196,334      $     (86,320)    $ 1,178,152
+
+
+Governmental activities: Net position for governmental activities, excluding the special item of
+$107.7 million from ORSA transfer of excess bond proceeds to the City, decreased by $58.9 million during
+fiscal year 2014-15. Total revenue increased by 7.4 percent and expenses increased by 1.0 percent. During
+FY 2013-14, revenues increased at a rate of 10.8 percent and expenses increased by 5.6 percent.
+
+
