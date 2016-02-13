@@ -63,24 +63,24 @@ import pandas as pd
 #Regex tester online: https://regex101.com
 #Contrast with Basic table parsing capabilities of http://docs.astropy.org/en/latest/io/ascii/index.html
 
-tokenize_pattern = ur"[.]{%i,}|[\ \$]{%i,}|" % ((config['min_delimiter_length'],)*2)
-tokenize_pattern = ur"[.\ \$]{%i,}" % (config['min_delimiter_length'],)
-footnote_inidicator = ur"[^,_!a-zA-Z0-9.]"
+tokenize_pattern = "[.]{%i,}|[\ \$]{%i,}|" % ((config['min_delimiter_length'],)*2)
+tokenize_pattern = "[.\ \$]{%i,}" % (config['min_delimiter_length'],)
+footnote_inidicator = "[^,_!a-zA-Z0-9.]"
 
 column_pattern = OrderedDict()
-#column_pattern['large_num'] = ur"\d{1,3}(,\d{3})*(\.\d+)?"
-column_pattern['large_num'] = ur"(([0-9]{1,3})(,\d{3})+(\.[0-9]{2})?)"
-column_pattern['small_float'] = ur"[0-9]+\.[0-9]+"
-column_pattern['integer'] = ur"^\s*[0-9]+\s*$"
+#column_pattern['large_num'] = u"\d{1,3}(,\d{3})*(\.\d+)?"
+column_pattern['large_num'] = "(([0-9]{1,3})(,\d{3})+(\.[0-9]{2})?)"
+column_pattern['small_float'] = "[0-9]+\.[0-9]+"
+column_pattern['integer'] = "^\s*[0-9]+\s*$"
 #column_patter['delimiter'] = "[_=]{6,}"
-#column_pattern['other'] = ur"([a-zA-Z0-9]{2,}\w)"
-column_pattern['other'] = ur".+"
+#column_pattern['other'] = u"([a-zA-Z0-9]{2,}\w)"
+column_pattern['other'] = ".+"
 
 subtype_indicator = OrderedDict()
-subtype_indicator['dollar'] = ur".*\$.*"
-subtype_indicator['rate'] = ur"[%]"
+subtype_indicator['dollar'] = ".*\$.*"
+subtype_indicator['rate'] = "[%]"
 #enter full set of date patterns here if we want refinement early on
-subtype_indicator['year'] = ur"(20[0-9]{2})|(19[0-9]{2})"
+subtype_indicator['year'] = "(20[0-9]{2})|(19[0-9]{2})"
 
 
 # In[5]:
@@ -88,7 +88,7 @@ subtype_indicator['year'] = ur"(20[0-9]{2})|(19[0-9]{2})"
 #import dateutil.parser as date_parser
 #Implement footnote from levtovers
 def tag_token(token, ws):
-    for t, p in column_pattern.iteritems():
+    for t, p in column_pattern.items():
         result = re.search(p, token)
         if result:
             leftover = token[:result.start()], token[result.end():]
@@ -100,15 +100,15 @@ def tag_token(token, ws):
 
             subtype = "none"
             #First match on left-overs
-            for sub, indicator in subtype_indicator.iteritems():
+            for sub, indicator in subtype_indicator.items():
                 if re.match(indicator, lr): subtype = sub
             #Only if no indicator matched there, try on full token
             if subtype == "none":
-                for sub, indicator in subtype_indicator.iteritems():
+                for sub, indicator in subtype_indicator.items():
                     if re.match(indicator, token): subtype = sub
             #Only if no indicator matched again, try on whitespace
             if subtype == "none":
-                for sub, indicator in subtype_indicator.iteritems():
+                for sub, indicator in subtype_indicator.items():
                     if re.match(indicator, ws): subtype = sub
             #print token, ":", ws, ":", subtype
 
@@ -146,7 +146,7 @@ def row_qualifies(row):
     return len(row) >= config['min_columns'] and sum( 1 if c['type'] in ['large_num', 'small_float', 'integer'] else 0 for c in row) > 0
 
 def row_equal_types(row1, row2):
-    same_types = sum (map(lambda t: 1 if t[0]==t[1] else 0, ((c1['type'], c2['type']) for c1, c2 in zip(row1, row2))))
+    same_types = sum ([1 if t[0]==t[1] else 0 for t in ((c1['type'], c2['type']) for c1, c2 in zip(row1, row2))])
     return same_types
 
 
@@ -169,7 +169,7 @@ def filter_row_spans_new(row_features, row_qualifies=row_qualifies, ):
     for j, row in enumerate(row_features):
         qualifies = row_qualifies(row)
         if consistency_check:
-            print "BENCHMARKING %s AGAINST:" % row_to_string(row), row_to_string(row_features[last_qualified], 'type')
+            print("BENCHMARKING %s AGAINST:" % row_to_string(row), row_to_string(row_features[last_qualified], 'type'))
             if not row_type_compatible(row_features[last_qualified], row):
                 qualifies = False
             consistency_check = False
@@ -186,7 +186,7 @@ def filter_row_spans_new(row_features, row_qualifies=row_qualifies, ):
             if underqualified > grace_rows:
                 if consecutive >= min_consecutive:
                     #TODO: do post splitting upon type check and benchmark
-                    print "YIELDED from", last_qualified, "to", i-underqualified+1
+                    print("YIELDED from", last_qualified, "to", i-underqualified+1)
                     yield last_qualified, i-underqualified+1
 
                 last_qualified = None
@@ -196,7 +196,7 @@ def filter_row_spans_new(row_features, row_qualifies=row_qualifies, ):
             else:
                 if last_qualified:
                     consistency_check = True
-        print i, last_qualified, consecutive, consistency_check, row_to_string(row)
+        print(i, last_qualified, consecutive, consistency_check, row_to_string(row))
         i += 1
 
     if consecutive >= min_consecutive:
@@ -248,7 +248,7 @@ def filter_row_spans(row_features, row_qualifies):
                 last_qualified = None
                 consecutive = 0
                 underqualified = 0
-        print i, underqualified, last_qualified, consecutive#, "" or row
+        print(i, underqualified, last_qualified, consecutive)#, "" or row
         i += 1
 
     if consecutive >= min_consecutive:
@@ -292,13 +292,13 @@ def structure_rows(row_features, meta_features):
     #Determine maximum nr. of columns
     lengths = Counter(len(r) for r in row_features)
     nrcols = config['min_columns']
-    for l in sorted(lengths.keys(), reverse=True):
+    for l in sorted(list(lengths.keys()), reverse=True):
         nr_of_l_rows = lengths[l]
         if nr_of_l_rows/float(len(row_features)) > config['min_canonical_rows']:
             nrcols = l
             break
 
-    canonical = filter(lambda r: len(r) == nrcols , row_features)
+    canonical = [r for r in row_features if len(r) == nrcols]
 
     #for c in canonical: print len(c), row_to_string(c)
 
@@ -365,7 +365,7 @@ def convert_to_table(rows, b, e, above):
 
     structure, data, headers = structure_rows(data_rows, meta_rows)
 
-    captions = [(col['value'] if 'value' in col.keys() else "---") +"\n(%s, %s)" % (col['type'], col['subtype']) for col in structure]
+    captions = [(col['value'] if 'value' in list(col.keys()) else "---") +"\n(%s, %s)" % (col['type'], col['subtype']) for col in structure]
     table['captions'] = captions
     table['data'] = data
     table['header'] = " | ".join(headers)
@@ -390,7 +390,7 @@ def return_tables(txt_path):
     tables = OrderedDict()
 
     with codecs.open(txt_path, "r", "utf-8") as f:
-        lines = [l.replace(u'\n', '').replace(u'\r', '') for l in f]
+        lines = [l.replace('\n', '').replace('\r', '') for l in f]
         rows = [row_feature(l) for l in lines]
 
         return indexed_tables_from_rows(rows)
@@ -442,10 +442,10 @@ def upload_file():
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            print "post for", filename
+            print("post for", filename)
             extension = get_extension(file.filename)
             path = os.path.join(app.config['UPLOAD_FOLDER'], extension)
-            print 'trying to write to', path
+            print('trying to write to', path)
             if not os.path.exists(path):
               os.makedirs(path)
             file.save(os.path.join(path, filename))
@@ -471,7 +471,7 @@ def uploaded_file(filename):
     if not os.path.exists(txt_folder):
       os.makedirs(txt_folder)
 
-    print "showing text", txt_folder
+    print("showing text", txt_folder)
     
     if extension == "pdf":
         txt_path += '.txt'
@@ -487,17 +487,17 @@ def uploaded_file(filename):
     #Construct histogram
     lines_per_page = 80
     nr_data_rows = []
-    for b, t in tables.iteritems():
+    for b, t in tables.items():
         e = t['end_line']
         #print b, e
         for l in range(b, e):
-            page = l / lines_per_page
+            page = int(l / lines_per_page)
             if len(nr_data_rows) <= page:
-                nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
+                nr_data_rows += ([0]*int(page-len(nr_data_rows)+1))
             nr_data_rows[page] += 1
     dr = pd.DataFrame()
     dr['value'] = nr_data_rows
-    dr['page'] = range(0, len(dr))
+    dr['page'] = list(range(0, len(dr)))
 
     #plot the row density
     chart = filename+".png"
@@ -511,14 +511,14 @@ def uploaded_file(filename):
 
     #Create HTML
     notices = ['Extraction Results for ' + filename, 'Ordered by lines']
-    dfs = (table_to_df(table).to_html() for table in tables.values())
+    dfs = (table_to_df(table).to_html() for table in list(tables.values()))
     headers = []
-    for t in tables.values():
+    for t in list(tables.values()):
         if 'header' in t:
             headers.append(t['header'])
         else:
             headers.append('-')
-    meta_data = [{'begin_line' : t['begin_line'], 'end_line' : t['end_line']} for t in tables.values()]
+    meta_data = [{'begin_line' : t['begin_line'], 'end_line' : t['end_line']} for t in list(tables.values())]
 
     return render_template('viewer.html',
         title=TITLE + ' - ' + filename,
@@ -571,7 +571,7 @@ else:
 
 # In[ ]:
 
-test_string = u"""TO THE PAYMENT OF THE PRINCIPAL OF OR INTEREST ON THE SERIES 2013 BONDS. THE OBLIGATION OF THE CITY OF FLINT TO MAKE PAYMENTS OF
+test_string = """TO THE PAYMENT OF THE PRINCIPAL OF OR INTEREST ON THE SERIES 2013 BONDS. THE OBLIGATION OF THE CITY OF FLINT TO MAKE PAYMENTS OF
 CASH RENTALS IS A SPECIAL, LIMITED OBLIGATION OF THE CITY OF FLINT PAYABLE SOLELY FROM THE NET REVENUES OF THE MEDICAL CENTER. THE
 AUTHORITY HAS NO TAXING POWER.
                                                    AMOUNT, MATURITY, INTEREST RATE, PRICE, YIELD AND CUSIP†
@@ -599,12 +599,12 @@ without any notice, and to the approval of legality of the Series 2013 Bonds by 
 passed upon for the Medical Center by its General Counsel and for the Authority by its disclosure counsel, Miller, Canfield, Paddock and Stone, P.L.C., Ann Arbor,
 Michigan. It is expected that the Series 2013A Bonds in definitive form will be available for delivery to the Underwriter through the facilities of DTC on or about
 March 14, 2013 and that the Series 2013B Bonds in definitive form will be available for delivery to the Underwriter through the facilities of DTC on or about April 2, 2013.
-""".split(u"\n")
+""".split("\n")
 
 
 # In[ ]:
 
-test_string = u"""
+test_string = """
    9
 
                                                  CITY OF OAKLAND
@@ -669,7 +669,7 @@ fiscal year 2014-15. Total revenue increased by 7.4 percent and expenses increas
 FY 2013-14, revenues increased at a rate of 10.8 percent and expenses increased by 5.6 percent.
 
 
-""".split(u"\n")
+""".split("\n")
 
 
 # In[ ]:
@@ -681,14 +681,14 @@ from IPython.display import display
 rows = [row_feature(l) for l in test_string]
 
 for b, e in filter_row_spans(rows, row_qualifies):
-    print b, row_to_string(rows[b]), " --> ", e, row_to_string(rows[e])
+    print(b, row_to_string(rows[b]), " --> ", e, row_to_string(rows[e]))
     #for i in range(b,e):
     #    print i, len(rows[i]), row_to_string(rows[i])
 
-print "#######################"
+print("#######################")
 
 tables = indexed_tables_from_rows(rows)
-for begin_line, t in tables.iteritems():
+for begin_line, t in tables.items():
     df = table_to_df(t)
 
     #for d in t['data']: print row_to_string(d)
@@ -698,7 +698,7 @@ for begin_line, t in tables.iteritems():
 
     for j in range(t['begin_line'], t['end_line']):
         pass #print len(rows[j]), test_string[j], "|".join([c['type']+'_'+c['subtype'] for c in rows[j]])
-    print t['header']
+    print(t['header'])
     display(df)
 
 
@@ -855,13 +855,13 @@ Period Ending        Principal            Interest             Interest         
 
 
 
-""".split(u"\n")
+""".split("\n")
 
 
 # In[ ]:
 
 #How to split this one? Three distinct tables because different types (but matching)
-test_string = u"""
+test_string = """
     THE SERIES 2013 BONDS DO NOT CONSTITUTE A DEBT, LIABILITY OR OBLIGATION OF THE STATE OF MICHIGAN AND NEITHER THE FULL FAITH AND
 CREDIT NOR THE TAXING POWER OF THE STATE OF MICHIGAN, THE CITY OF FLINT OR ANY AGENCY OR POLITICAL SUBDIVISION THEREOF IS PLEDGED
 TO THE PAYMENT OF THE PRINCIPAL OF OR INTEREST ON THE SERIES 2013 BONDS. THE OBLIGATION OF THE CITY OF FLINT TO MAKE PAYMENTS OF
@@ -895,7 +895,7 @@ March 14, 2013 and that the Series 2013B Bonds in definitive form will be availa
      This cover page contains certain information for quick reference only. It is not a summary of the Series 2013 Bonds or the security for the Series 2013 Bonds.
 Potential investors must read the entire Official Statement, including the Appendices, to obtain information essential to the making of an informed investment decision.
 
-""".split(u"\n")
+""".split("\n")
 
 
 # In[ ]:
@@ -906,15 +906,15 @@ try:
     rows = [row_feature(l) for l in test_string]
 
     tables = indexed_tables_from_rows(rows)
-    for begin_line, t in tables.iteritems():
+    for begin_line, t in tables.items():
         df = table_to_df(t)
 
         for j in range(t['begin_line']-4, t['begin_line']):
-            print len(rows[j]), rows[j]
+            print(len(rows[j]), rows[j])
 
         for j, row in enumerate(t['data']):
-            print len(rows[t['begin_line'] + j]), rows[t['begin_line'] + j]
-        print t['header']
+            print(len(rows[t['begin_line'] + j]), rows[t['begin_line'] + j])
+        print(t['header'])
         display(df)
 except:
     pass
