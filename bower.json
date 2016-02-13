@@ -1,0 +1,20 @@
+{
+  "name": "TabulaRazr",
+  "homepage": "https://github.com/ahirner/TabulaRazr",
+  "authors": [
+    "Alexander Hirner"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "startbootstrap-sb-admin-2": "^1.0.8"
+  }
+}

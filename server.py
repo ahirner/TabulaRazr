@@ -435,6 +435,10 @@ def get_extension(filename):
 def allowed_file(filename):
     return get_extension(filename) in ALLOWED_EXTENSIONS
 
+@app.route('/bower_components/<path:path>')
+def send_bower_components(path):
+    return send_from_directory('bower_components', path)
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
