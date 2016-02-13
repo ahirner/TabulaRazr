@@ -10,9 +10,9 @@ Web App to extract and browse through tabular data using Flask.
 
 Navigate to `http://localhost:8000` and upload an example document (see below).
 ## Folder structure
-- /templates ... Jinja2 template
-- /static ... all stylesheets and media goes there
-- /static/ug/<project_name> ... user uploaded data and analysis files (graphs, json)
+- [./templates](./templates) ... Jinja2 template
+- [,/static](./static) ... all stylesheets and media goes there
+- [./static/ug/<project_name>](./static/ug/) ... user uploaded data and analysis files (graphs, json)
 
 ## Exapmples
 
