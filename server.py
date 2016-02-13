@@ -589,7 +589,7 @@ from IPython.display import display
 
 #print i, underqualified, last_qualified, consecutive#, "" or row
 test_file = "test_input1.txt"
-read_lines( test_file )
+test_string = read_lines( test_file )
 rows = [row_feature(l) for l in test_string]
 
 for b, e in filter_row_spans(rows, row_qualifies):
@@ -617,8 +617,7 @@ for begin_line, t in tables.items():
 try:
     from IPython.display import display
     test_file = "test_input6.txt"
-    read_lines( test_file )
-
+    test_string = read_lines( test_file )
     rows = [row_feature(l) for l in test_string]
 
     tables = indexed_tables_from_rows(rows)
