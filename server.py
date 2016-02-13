@@ -588,7 +588,7 @@ else:
 from IPython.display import display
 
 #print i, underqualified, last_qualified, consecutive#, "" or row
-test_file = "test_input1.txt"
+test_file = "testcases/test_input1.txt"
 test_string = read_lines( test_file )
 rows = [row_feature(l) for l in test_string]
 
@@ -616,7 +616,7 @@ for begin_line, t in tables.items():
 
 try:
     from IPython.display import display
-    test_file = "test_input6.txt"
+    test_file = "testcases/test_input6.txt"
     test_string = read_lines( test_file )
     rows = [row_feature(l) for l in test_string]
 
