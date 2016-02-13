@@ -1,0 +1,23 @@
+{
+  "name": "TabulaRazr",
+  "homepage": "https://github.com/ahirner/TabulaRazr",
+  "authors": [
+    "Shane Vorachek <shane.vorachek@wolterskluwer.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "./templates/thirdparty",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.0",
+    "bootstrap": "^3.3.6"
+  }
+}
