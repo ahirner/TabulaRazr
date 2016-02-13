@@ -5,6 +5,7 @@ Web App to extract and browse through tabular data using Flask.
 # Setup and run
 
     pip install -r requirements.txt
+    bower install
     python server.py
 
 Navigate to `http://localhost:8000` and upload an example document (see below).

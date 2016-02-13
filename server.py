@@ -411,9 +411,13 @@ def table_to_df(table):
 
 scripts = []
 css = [
-    "./bower_components/bootstrap/dist/css/bootstrap.min.css",
-    "./css/main.css",
-    "./css/style.css"
+    "./thirdparty/bootstrap/dist/css/bootstrap.min.css",
+    "./css/new.css"
+    #"./css/main.css",
+    #"./css/style.css"
+]
+js = [
+    "./thirdparty/angular/angular.js"
 ]
 
 import matplotlib.pyplot as plt
@@ -432,11 +436,15 @@ def get_extension(filename):
 def allowed_file(filename):
     return get_extension(filename) in ALLOWED_EXTENSIONS
 
+@app.route('/bower_components/<path:path>')
+def send_bower_components(path):
+    return send_from_directory('bower_components', path)
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         file = request.files['file']
-        
+
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             print("post for", filename)
@@ -452,6 +460,14 @@ def upload_file():
     return render_template('index.html',
         title=TITLE ,
         css=css)
+
+@app.route('/browser')
+def test():
+
+    return render_template('semantic-browser.html',
+        TITLE='Semantic-Browser',
+        css=css,
+        js=js)
 
 @app.route('/show/<filename>')
 def uploaded_file(filename):
