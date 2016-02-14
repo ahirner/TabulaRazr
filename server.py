@@ -203,7 +203,7 @@ def analyze(filename):
 @app.route('/browser')
 def test():
 
-    return render_template('semantic-browser.html',
+    return render_template('index.html',
         TITLE='Semantic-Browser',
         css=css,
         js=js)

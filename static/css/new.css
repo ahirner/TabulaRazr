@@ -20,6 +20,21 @@ body {
 	height: 75px;
 }
 
+.navbar-nav {
+	line-height: 75px;
+}
+
+.navbar-default .navbar-nav > li > a {
+  line-height: 75px;
+  padding: 0 20px;
+  font-size: 18px;
+  color: #24b0f0;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+	color: #333;
+}
+
 .main,
 .browser {
 	position: absolute;
@@ -27,6 +42,10 @@ body {
 	bottom: 0;
 	right: 0;
 	left: 0;
+}
+
+.browser {
+	top: 0;
 }
 
 .main-wrapper {
@@ -96,4 +115,27 @@ body {
 	bottom: 0;
 	left: 0;
 	right: 0;
+}
+
+/* animations */
+.animate {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes slideInLeft {
+	from {
+		opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+    visibility: visible;
+  }
+
+  to {
+  	opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.slide-in-left {
+  animation-name: slideInLeft;
 }
