@@ -98,7 +98,7 @@ class InputFile():
     def __init__(self, upload, project , filename):
 
         self.upload = upload
-        self.project = project if (project is not None and project is not "-") else ""
+        self.project = project if ((project is not None) and (project is not "-")) else ""
         self.filename = filename
 
     @property
@@ -209,7 +209,7 @@ def get_table_frontend(project, filename, table_id):
     _id['filename'] = filename
     _id['project'] = project
 
-    return {'_id' : _id, 'meta' : captions, 'data' : rows}
+    return {'_id' : _id, 'meta' : captions, 'data' : rows, 'overall_header' : table['header']}
    
 
 def page_statistics(table_dict,  lines_per_page = 80):
