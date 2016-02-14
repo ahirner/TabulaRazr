@@ -44,7 +44,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from backend import return_tables, table_to_df
+from backend import parse_tables, table_to_df
 
 
 config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
@@ -85,67 +85,6 @@ def allowed_file(filename):
 def send_bower_components(path):
     return send_from_directory('bower_components', path)
 
-##### API 
-
-
-# + project, table_id in the query string
-@app.route('/api/get_table/<filename>', methods=['GET', 'POST'])
-def get_table(filename):   
-
-    project = request.args.get('project')
-    table_id = request.args.get('table_id')     
-
-    return get_table_json(filename, project, table_id)
-
-
-
-def get_table_json(filename, project, table_id):   
-    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
-    
-    tables_path = path + '.tables.json'
-    with codecs.open(tables_path) as file:
-        tables = json.load(file)
-
-    table = tables[table_id]
-    
-    captions = [{ 'value': c } for c in table['captions']]
-    for i, c in enumerate(table['captions']):
-        captions[i]['type'] = table['types'][i]
-        captions[i]['subtype'] = table['subtypes'][i]
-        string_collated = (table['types'][i] + table['subtypes'][i])
-        sample_color = string_collated[0] + string_collated[-1] + string_collated[len(string_collated)/2]
-        captions[i]['color'] = "#F%sF%sF%s" % tuple(sample_color)
-
-    
-    rows = []
-    
-    for i in range(len(table['data'])):
-        row = {}
-        for j, c in enumerate(captions):
-            row[c['value']] = table['data'][i][j]
-        rows.append(row)
-     
-    _id = {}
-    _id['table_id'] = table_id
-    _id['filename'] = filename
-    _id['project'] = project
-
-    return json.dumps({'_id' : _id, 'meta' : captions, 'data' : rows})
-
-
-@app.route('/get_tables/<filename>', methods=['GET', 'POST'])
-def get_tables(filename):   
-
-    project = request.args.get('project')    
-    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
-    
-    tables_path = path + '.tables.json'
-    with codecs.open(tables_path) as file:
-        tables = json.load(file)   
-
-
-
-### WEB
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -177,7 +116,66 @@ def upload_file():
         title=TITLE ,
         css=css)
 
-    return json.dumps(tables)
+# + project, table_id in the query string
+@app.route('/api/get_table/<filename>', methods=['GET', 'POST'])
+def get_table(filename):
+
+    project = request.args.get('project')
+    table_id = request.args.get('table_id')
+
+    return get_table_json(filename, project, table_id)
+
+def get_table_json(filename, project, table_id):
+    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+
+    tables_path = path + '.tables.json'
+    with codecs.open(tables_path) as file:
+        tables = json.load(file)
+
+    table = tables[table_id]
+
+    captions = [{ 'value': c } for c in table['captions']]
+    for i, c in enumerate(table['captions']):
+        captions[i]['type'] = table['types'][i]
+        captions[i]['subtype'] = table['subtypes'][i]
+        string_collated = (table['types'][i] + table['subtypes'][i])
+        sample_color = string_collated[0] + string_collated[-1] + string_collated[len(string_collated)/2]
+        captions[i]['color'] = "#F%sF%sF%s" % tuple(sample_color)
+
+
+    rows = []
+
+    for i in range(len(table['data'])):
+        row = {}
+        for j, c in enumerate(captions):
+            row[c['value']] = table['data'][i][j]
+        rows.append(row)
+
+    _id = {}
+    _id['table_id'] = table_id
+    _id['filename'] = filename
+    _id['project'] = project
+
+    return json.dumps({'_id' : _id, 'meta' : captions, 'data' : rows})
+   
+
+def page_statistics(table_dict,  lines_per_page = 80):
+    nr_data_rows = []
+    #for t in tables.values():
+    #    print t
+    for key, t in table_dict.items():
+        e = t['end_line']
+        b = t['begin_line']
+        for l in range(b, e):
+            page = int(l / lines_per_page)
+            if len(nr_data_rows) <= page:
+                nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
+            nr_data_rows[page] += 1
+    chart = pd.DataFrame()
+    chart['value'] = nr_data_rows
+    chart['page'] = range(0, len(chart))
+    return chart 
+
 
 @app.route('/analyze/<filename>', methods=['GET', 'POST'])
 def analyze(filename):   
@@ -188,28 +186,14 @@ def analyze(filename):
     if not os.path.isfile(txt_path):
         return {'error' : txt_path+' not found' }
     
-    tables = return_tables(txt_path)
+    tables = parse_tables(txt_path)
     
     #Export tables
     with codecs.open(txt_path + '.tables.json', 'w', "utf-8") as file:
         json.dump(tables, file)
 
     #Export chart
-    lines_per_page = 80
-    nr_data_rows = []
-    #for t in tables.values():
-    #    print t
-    for key, t in tables.items():
-        e = t['end_line']
-        b = t['begin_line']
-        for l in range(b, e):
-            page = int(l / lines_per_page)
-            if len(nr_data_rows) <= page:
-                nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
-            nr_data_rows[page] += 1
-    dr = pd.DataFrame()
-    dr['value'] = nr_data_rows
-    dr['page'] = range(0, len(dr))
+    dr = page_statistics(tables,  lines_per_page = 80)
 
     #plot the row density
     chart = filename+".png"
@@ -223,6 +207,7 @@ def analyze(filename):
 
     xticks = np.arange(0, np.ceil(max( dr['page'] )) + 2 )
     ax.set_xticks(xticks)
+    ax.set_xlim([0, xticks[-1]] )
     fig.tight_layout()
     fig.savefig(txt_path + '.png')   # save the figure to file
     plt.close(fig)                      # close the figure
@@ -241,7 +226,7 @@ def test():
         js=js)
 
 @app.route('/show/<filename>')
-def uploaded_file( path ):
+def uploaded_file( filename ):
 
     project = request.args.get('project')    
     path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
@@ -274,7 +259,9 @@ def uploaded_file( path ):
 
 @app.route('/inspector/<filename>')
 def inspector(filename):
-    project = request.args.get('project')    
+    project = request.args.get('project')
+    project = project if project is not None else ""
+    print("project:", project)
     path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
  
     begin_line = int(request.args.get('data_begin'))
