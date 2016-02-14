@@ -46,7 +46,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from backend import parse_tables, table_to_df
-from semantic_processing import get_footprint_of_tables, get_nearest_neighbors
+import  semantic_processing  as sempr
+#import get_footprint_of_tables, get_nearest_neighbors
 
 
 config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
@@ -174,7 +175,7 @@ def get_table(filename, project, table_id):
 @app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_similar_tables_all(filename, project, table_id):
     tables = [get_table_frontend(pr, fn, t_id) for fn, pr, t_id in \
-                        get_nearest_neighbors(project, filename, table_id, True)]
+                        sempr.get_nearest_neighbors(project, filename, table_id, True)]
     return json.dumps(tables)
     
     
@@ -271,7 +272,7 @@ def analyze(filename):
     plt.close(fig)                      # close the figure
 
     #Export fingerprints (use same path as for tables)
-    for kk, vv in zip(tables.keys(), get_footprint_of_tables(tables.values())):
+    for kk, vv in zip(tables.keys(), sempr.get_footprint_of_tables(tables.values())):
         fingerprint_path = os.path.join( filedir, "%s" % kk)
         print( "fingerprint_path" , fingerprint_path)
         
