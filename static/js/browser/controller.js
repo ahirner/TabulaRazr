@@ -15,7 +15,7 @@
     }
 
     function buildUrl(data) {
-      var apiUrlForSimilarTables = "http://0.0.0.0:7080/api/get_similar_tables_all/" +
+      var apiUrlForSimilarTables = "http://0.0.0.0:7081/api/get_similar_tables_all/" +
         (data["_id"].project || "-") + "/" +
         (data["_id"].filename) + "/" +
         (data["_id"].table_id);
@@ -23,7 +23,7 @@
       getSimilar(apiUrlForSimilarTables)
     }
 
-    $http.get('http://0.0.0.0:7080/api/get_table/-/EP753324-ER508056-ER910760/234').then(function(response) {
+    $http.get('http://0.0.0.0:7081/api/get_table/-/EP753324-ER508056-ER910760/234').then(function(response) {
       $scope.data = response.data;
       $scope.sort.by = $scope.data.meta[0].value;
 

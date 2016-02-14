@@ -4,6 +4,7 @@ import retinasdk
 from collections import OrderedDict
 import six
 import sys
+import server as srv
 
 def table_summary(vv0):
     tablesummary = {}
@@ -15,7 +16,7 @@ def table_summary(vv0):
         #print(vv1)
         for cell in vv1:
             if "type" in cell:
-                if cell["type"] == "other" or cell["type"] == "complex":
+                if "type" in cell and  cell["type"] == "other" or cell["type"] == "complex":
                     tablesummary["text_cells"] += cell["value"]
     return tablesummary
 
@@ -47,8 +48,9 @@ def get_footprint_of_tables( tables ):
         table_text = text_from_table(vv)
         yield liteClient.getFingerprint( table_text.encode('ascii', 'ignore'))
 
-def get_footprint_of_table(table):
-    liteClient =  connect_to_retina()
+def get_footprint_of_table(table, liteClient = None):
+    if liteClient is None:
+        liteClient =  connect_to_retina()
     table_text = text_from_table(table)
     return liteClient.getFingerprint( table_text.encode('ascii', 'ignore'))
 
@@ -94,31 +96,28 @@ def fingerprint_jaccard_distance(fp1, fp2):
 
 def get_all_project_tables(project=None):
     
-    path = './static/ug'
-    if project:
-        path = os.path.join('./static/ug', project)
+    upload = './static/ug'
             
-    for s in get_all_tables(path):
-        with codecs.open(os.path.join(path, s+'.table.json'), "r","utf-8") as file:
+    inp = srv.InputFile( upload, project, "")
+
+    for s in get_all_tables( inp.projdir ):
+        with codecs.open(os.path.join( inp.projdir , s+'.table.json'), "r","utf-8") as file:
             yield s, json.load(file)
 
-def get_nearest_neighbors(project, filename, table_id, exclude_self = False, max = 10):
+def get_nearest_neighbors( inpobj, table_id, exclude_self = False, max = 10):
     
-    path = './static/ug'
-    if project:
-        path = os.path.join('./static/ug', project)
     try:
-        with codecs.open(os.path.join(path, filename, table_id+'.fingerprint.json'),"r","utf-8") as file:
+        project_path = inpobj.projdir
+        table_path = os.path.join( inpobj.filedir, table_id +'.fingerprint.json')
+        with codecs.open( table_path ,"r","utf-8") as file:
             fingerprint = json.load(file)
             #print(fingerprint)
 
-
-
         similarities = []
-        for other_path in get_all_tables(path):
+        for other_path in get_all_tables( project_path ):
             other_filename, other_table_id = other_path.split(r"/")
-            if not (exclude_self and other_table_id == table_id and filename == other_filename):
-                other_path = os.path.join(path, other_filename, other_table_id+'.fingerprint.json')
+            if not (exclude_self and other_table_id == table_id and inpobj.basename == other_filename):
+                other_path = os.path.join(project_path, other_filename, other_table_id+'.fingerprint.json')
                 try:
                     with codecs.open(other_path, "r","utf-8") as file:
                         other_fp = json.load(file)
@@ -129,6 +128,6 @@ def get_nearest_neighbors(project, filename, table_id, exclude_self = False, max
 
         similarities.sort(key=operator.itemgetter(2), reverse=True)
         for fn, t_id, sim in islice(similarities, 0, max):
-            yield fn, project, t_id
+            yield fn, inpobj.project_key, t_id
     except:
         pass
