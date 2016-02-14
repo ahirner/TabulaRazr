@@ -113,9 +113,15 @@ class InputFile():
         return  os.path.join( self.upload, self.project, self.basename )
 
     @property
+    def projdir(self):
+        """ directory where tables from one source file are stored"""
+        return  os.path.join( self.upload, self.project, )
+
+    @property
     def filepath( self ):
         """ the path to the raw pdf file"""
         return  os.path.join( self.filedir, self.filename)
+
 
    
 @app.route('/', methods=['GET', 'POST'])
