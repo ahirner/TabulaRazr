@@ -336,7 +336,11 @@ def convert_to_table(rows, b, e, above):
 
     structure, data, headers = structure_rows(data_rows, meta_rows)
 
-    captions = [(col['value'] if 'value' in list(col.keys()) else "---") +"\n(%s, %s)" % (col['type'], col['subtype']) for col in structure]
+    captions = [(col['value'] if 'value' in list(col.keys()) else "---") for col in structure]
+    types = [col['type'] for col in structure]
+    subtypes = [col['subtype'] for col in structure]
+    table['types'] = types
+    table['subtypes'] = subtypes
     table['captions'] = captions
     table['data'] = data
     table['header'] = " | ".join(headers)
