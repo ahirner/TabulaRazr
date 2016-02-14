@@ -13,7 +13,7 @@ Or:
 - http://dociq-prototype.cloudapp.net/static/ug/pdf/EP753324-ER508056-ER910760.pdf
 - http://dociq-prototype.cloudapp.net/static/ug/pdf/ER544111-ER421289-ER823264.pdf
 .. etc.
-### Example pdfs from public data (municipal bonds, audit reports, finanical reviews)
+### Example pdfs from public data (municipal bonds, audit reports, financial reviews)
 
 - http://emma.msrb.org/EP753324-ER508056-ER910760.pdf
 - http://emma.msrb.org/EP407966-EP321048-EP717328.pdf
