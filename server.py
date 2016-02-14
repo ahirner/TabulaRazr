@@ -110,7 +110,7 @@ class InputFile():
     def __init__(self, upload, project , filename):
 
         self.upload = upload
-        self.project = project if (project is not None) else ""
+        self.project = project if (project is not None and project is not "-") else ""
         self.filename = filename
 
     @property
@@ -177,29 +177,22 @@ def upload_file():
 # + project, table_id in the query string <--- not anymore, 
 @app.route('/api/get_table/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_table(filename, project, table_id):
-
-    if project == "-":
-        project = None
-
-    return json.dumps(get_table_frontend(filename, project, table_id))
+    return json.dumps(get_table_frontend(project, filename, table_id))
 
 @app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_similar_tables_all(filename, project, table_id):
-    
-    if project == "-":
-        project = None
-    
-    tables = [get_table_frontend(fn, pr, t_id) for fn, pr, t_id in get_nearest_neighbors(project, filename, table_id, True)]
+    tables = [get_table_frontend(pr, fn, t_id) for fn, pr, t_id in \
+                        get_nearest_neighbors(project, filename, table_id, True)]
     return json.dumps(tables)
     
     
-def get_table_frontend(filename, project, table_id):
-    path = os.path.join(app.config['UPLOAD_FOLDER'], filename, table_id)
-    if project:
-        path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename, table_id)        
+def get_table_frontend(project, filename, table_id):
+            #filepath =  os.path.join( filedir, filename )
+    upload = app.config['UPLOAD_FOLDER']
+    inp = InputFile(upload, project, filename)
 
-    tables_path = path + '.table.json'
-    with codecs.open(tables_path) as file:
+    table_path = inp.filepath + '.table.json'
+    with codecs.open(table_path) as file:
         table = json.load(file)
 
     captions = [{ 'value': c } for c in table['captions']]
@@ -228,8 +221,6 @@ def get_table_frontend(filename, project, table_id):
 
 def page_statistics(table_dict,  lines_per_page = 80):
     nr_data_rows = []
-    #for t in tables.values():
-    #    print t
     for key, t in table_dict.items():
         e = t['end_line']
         b = t['begin_line']
@@ -250,8 +241,8 @@ def analyze(filename):
     print("project:", project)
     inp = InputFile(upload, project, filename)
     filebase = inp.basename
-    filedir = inp.filedir# os.path.join(app.config['UPLOAD_FOLDER'], project, filebase)
-    filepath = inp.filepath # os.path.join(filedir , filename)
+    filedir = inp.filedir
+    filepath = inp.filepath 
     
     if not os.path.isfile( filepath ):
         print( filepath , " not found ", file = sys.stderr )
@@ -353,8 +344,6 @@ def inspector(filename):
     print("project:", project)
     inp = InputFile(upload, project, filename)
     filebase = inp.basename 
-    # basename( filename )
-    #filedir = #os.path.join(app.config['UPLOAD_FOLDER'], project, filebase )
  
     begin_line = int(request.args.get('data_begin'))
     end_line = int(request.args.get('data_end'))
