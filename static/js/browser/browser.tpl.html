@@ -2,7 +2,9 @@
   <div class="browser-wrapper">
     <div class="left fill">
       <div class="top">
-        {{model.message}}
+        <ul>
+          <li ng-repeat="item in test">{{item.header}}</li>
+        </ul>
       </div>
       <div class="bot">
         hey

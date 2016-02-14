@@ -66,13 +66,17 @@ from backend import return_tables, table_to_df
 scripts = []
 css = [
     "./thirdparty/bootstrap/dist/css/bootstrap.min.css",
+    "./thirdparty/metisMenu/dist/metisMenu.min.css",
+    "./thirdparty/startbootstrap-sb-admin-2/dist/css/timeline.css",
+    "./thirdparty/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css",
+    "./thirdparty/morrisjs/morris.css",
+    "./thirdparty/font-awesome/css/font-awesome.min.css",
     "./css/new.css"
-    #"./css/main.css",
-    #"./css/style.css"
 ]
 
 js = [
     "./thirdparty/angular/angular.js",
+    "./thirdparty/angular-ui-router/release/angular-ui-router.js",
     "./js/app.js",
     "./js/browser/controller.js",
     "./js/browser/BrowserDirective.js"
@@ -126,7 +130,8 @@ def upload_file():
 
     return render_template('index.html',
         title=TITLE ,
-        css=css)
+        css=css,
+        js=js)
 
 
 
@@ -203,7 +208,7 @@ def test():
         css=css,
         js=js)
 
-@app.route('/show/<filename>')
+@app.route('/show/<filename>', methods=['GET', 'POST'])
 def uploaded_file(filename):
 
     project = request.args.get('project')    

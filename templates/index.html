@@ -2,58 +2,30 @@
 <meta charset="utf-8">
 
 <html>
-
   <head>
     <title>{{title}}</title>
+    <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% for s in css %}
     <link href={{ url_for('static', filename=s) }} rel="stylesheet" media="screen">
     {% endfor %}
-
-    <!-- Bootstrap Core CSS -->
-    <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- MetisMenu CSS -->
-    <link href="../bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
-
-    <!-- Timeline CSS -->
-    <link href="../bower_components/startbootstrap-sb-admin-2/dist/css/timeline.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link href="../bower_components/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css" rel="stylesheet">
-
-    <!-- Morris Charts CSS -->
-    <link href="../bower_components/morrisjs/morris.css" rel="stylesheet">
-
-    <!-- Custom Fonts -->
-    <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-
-    <style>
-      .navbar-header {
-        min-height: 95px;
-      }
-
-      .sidebar {
-        margin-top: 80px;
-      }
-    </style>
-
   </head>
 
-  <body leftmargin="50">
-  <img src={{url_for('static', filename="TabulaRazr_Logo.png")}}>
-  <h1>Extract tables from .pdf and .txt documents</h1>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <br>
-         <input type=submit value=Upload>
-      </p>
-          <h4>Choose project to upload file into</h4>
-          <select name="project">
-            <option value="">/</option>
-            <option value="muni_bonds">Municipal Bonds</option>              
-        </select>
-    </form>
+  <body ng-app="tabularazr">
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">
+            <img src={{url_for('static', filename="TabulaRazr_Logo.png")}} height="75">
+          </a>
+        </div>
+      </div>
+    </nav>
 
+    <div class="main" ui-view></div>
   </body>
+
+  {% for j in js %}
+    <script src={{ url_for('static', filename=j) }}></script>
+  {% endfor %}
 </html>

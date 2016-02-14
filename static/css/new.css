@@ -20,6 +20,7 @@ body {
 	height: 75px;
 }
 
+.main,
 .browser {
 	position: absolute;
 	top: 75px;
@@ -28,12 +29,27 @@ body {
 	left: 0;
 }
 
+.main-wrapper {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	right: 20px;
+	bottom: 20px;
+	overflow-y: auto;
+	background: #fff;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
 .browser-wrapper {
 	-webkit-display: flex;
 	display: flex;
 	height: 100%;
 	position: relative;
 	overflow-y: auto;
+}
+
+.content {
+	padding: 10px 40px;
 }
 
 .browser-wrapper .left {
@@ -53,6 +69,7 @@ body {
   right: 0;
   position: absolute;
   border-bottom: 1px solid #ccc;
+  overflow-y: auto;
 }
 
 .left .bot {
@@ -61,6 +78,7 @@ body {
   left: 0;
   right: 0;
   position: absolute;
+  overflow-y: auto;
 }
 
 .browser-wrapper .right {
