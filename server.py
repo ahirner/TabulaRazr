@@ -90,7 +90,28 @@ def basename(filename):
     filename = secure_filename(filename)
     filebase = filename.replace(".pdf","").replace(".txt", "")
     return filebase
+
+class InputFile():
+    def __init__(self, upload, project , filename):
+        self.upload = upload
+        self.project = project if (project is not None) else ""
+        self.filename = filename
+
+    @property
+    def basename(self):
+        self.filename = secure_filename( self.filename)
+        filebase = self.filename.replace(".pdf","").replace(".txt", "")
+        return filebase
     
+    @property
+    def filedir(self):
+        return  os.path.join( self.upload, self.project, self.basename )
+
+    @property
+    def filepath( self ):
+        return  os.path.join( self.filedir, self.filename)
+
+   
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
 
@@ -101,13 +122,18 @@ def upload_file():
         
         if file and allowed_file(file.filename):
             extension = get_extension(file.filename)
-
             filename = secure_filename(file.filename)
-            filebase = basename( file.filename ) 
-            filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase )
+
+            upload = app.config['UPLOAD_FOLDER']
+            project = request.args.get('project')
+            inp = InputFile(upload, project, filename)
+            filebase = inp.basename
+            filedir = inp.filedir
+
             if not os.path.isdir( filedir ):
                 os.makedirs(filedir)
-            filepath =  os.path.join( filedir, filename )
+
+            filepath = inp.filepath
             file.save( filepath )
              
             if extension == "pdf":
@@ -185,18 +211,15 @@ def page_statistics(table_dict,  lines_per_page = 80):
     chart['page'] = range(0, len(chart))
     return chart 
 
-def getdir( upload, project, filename ):
-    filebase = basename(filename)
-    filedir = os.path.join(upload , project, filebase)
-    return filedir
-
 @app.route('/analyze/<filename>', methods=['GET', 'POST'])
 def analyze(filename):   
-
+    upload = app.config['UPLOAD_FOLDER']
     project = request.args.get('project')
-    filebase = basename(filename)
-    filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase)
-    filepath = os.path.join(filedir , filename)
+    print("project:", project)
+    inp = InputFile(upload, project, filename)
+    filebase = inp.basename
+    filedir = inp.filedir# os.path.join(app.config['UPLOAD_FOLDER'], project, filebase)
+    filepath = inp.filepath # os.path.join(filedir , filename)
     
     if not os.path.isfile( filepath ):
         print( filepath , " not found ", file = sys.stderr )
@@ -247,12 +270,11 @@ def test():
 
 @app.route('/show/<filename>')
 def uploaded_file( filename ):
-
-    project = request.args.get('project')    
-    #path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
-    filebase = basename(filename)
-    filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase)
-    #filepath = os.path.join(filedir , filename)
+    upload = app.config['UPLOAD_FOLDER']
+    project = request.args.get('project')
+    inp = InputFile(upload, project, filename)
+    filebase = inp.basename 
+    filedir = inp.filedir 
     
     def get_tables( filedir, suffix = '.table.json'):
         tablelist = list( filter( lambda x : x.endswith(suffix) , os.listdir( filedir ) ) )
@@ -286,34 +308,15 @@ def uploaded_file( filename ):
         base_scripts=scripts, filename=filename, project=project,
         css=css, notices = notices, tables = dfs, headers=headers, meta_data=meta_data, chart=chart_path)
 
-class InputFile():
-    def __init__(self, upload, project , filename):
-        self.upload = upload
-        self.project = project
-        self.filename = filename
-
-    @property
-    def basename(self):
-        self.filename = secure_filename( self.filename)
-        filebase = self.filename.replace(".pdf","").replace(".txt", "")
-        return filebase
-    
-    @property
-    def filedir(self):
-        return  os.path.join( self.upload, self.project, self.basename )
-
-    @property
-    def filepath( self ):
-        return  os.path.join( self.filedir, self.filename)
-
 @app.route('/inspector/<filename>')
 def inspector(filename):
+    upload = app.config['UPLOAD_FOLDER']
     project = request.args.get('project')
-    project = project if project is not None else ""
     print("project:", project)
-    filebase = basename( filename )
-    filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase )
-    filepath = os.path.join(filedir, filename)
+    inp = InputFile(upload, project, filename)
+    filebase = inp.basename 
+    # basename( filename )
+    #filedir = #os.path.join(app.config['UPLOAD_FOLDER'], project, filebase )
  
     begin_line = int(request.args.get('data_begin'))
     end_line = int(request.args.get('data_end'))
@@ -321,7 +324,7 @@ def inspector(filename):
     margin_bottom = margin_top
 
     notices = ['showing data lines from %i to %i with %i meta-lines above and below' % (begin_line, end_line, margin_top)]
-    with codecs.open(filepath , "r", "utf-8") as file:
+    with codecs.open(inp.filepath , "r", "utf-8") as file:
         lines = [l.encode('utf-8') for l in file][begin_line - margin_top:end_line + margin_bottom]
         top_lines = lines[:margin_top]
         table_lines = lines[margin_top:margin_top+end_line-begin_line]
