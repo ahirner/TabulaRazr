@@ -93,22 +93,26 @@ def basename(filename):
 
 class InputFile():
     def __init__(self, upload, project , filename):
+
         self.upload = upload
         self.project = project if (project is not None) else ""
         self.filename = filename
 
     @property
     def basename(self):
+        """ mybonds.pdf -> mybonds """
         self.filename = secure_filename( self.filename)
         filebase = self.filename.replace(".pdf","").replace(".txt", "")
         return filebase
     
     @property
     def filedir(self):
+        """ directory where tables from one source file are stored"""
         return  os.path.join( self.upload, self.project, self.basename )
 
     @property
     def filepath( self ):
+        """ the path to the raw pdf file"""
         return  os.path.join( self.filedir, self.filename)
 
    
