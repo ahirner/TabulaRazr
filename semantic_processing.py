@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, logging
 import retinasdk
 from collections import OrderedDict
@@ -10,8 +11,11 @@ def table_summary(vv0):
     tablesummary["text_cells"] = ""
     for vv1 in vv0["data"]: 
         #logging.debug([ cell["value"] for cell in vv1  if (cell["type"] == "other") or (cell["type"] == "complex")] )
-        tablesummary["text_cells"] += \
-            " ".join([ cell["value"] for cell in vv1  if (cell["type"] == "other") or (cell["type"] == "complex")])
+        #print(vv1)
+        for cell in vv1:
+            if "type" in cell:
+                if cell["type"] == "other" or cell["type"] == "complex":
+                    tablesummary["text_cells"] += cell["value"]
     return tablesummary
 
 def text_from_table(table):
