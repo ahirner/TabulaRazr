@@ -1,4 +1,6 @@
 cf
 nohup.out
 static/ug/*
+/static/thirdparty
 bower_components/
+*.pyc
