@@ -1,33 +1,36 @@
-#!/usr/bin/env python
+
 # coding: utf-8
 
-"""
-DocX - TABLE Parser
-Infers a table with arbitrary number of columns from reoccuring patterns in text lines
-(c) Alexander Hirner 2016, no redistribution without permission
+# In[1]:
 
-Main assumptions Table identificatin:
-1) each row is either in one line or not a row at all
-2) each column features at least one number (=dollar amount)
-2a) each column features at least one date-like string [for time-series only]
-3) a table exists if rows are in narrow consecutive order and share similarities --> scoring algo [DONE]
-4) each column is separated by more than x consecutive whitespace indicators (e.g. '  ' or '..')
+#DocX - TABLE Parser
+#Infers a table with arbitrary number of columns from reoccuring patterns in text lines
+#(c) Alexander Hirner 2016, no redistribution without permission
 
-Feature List Todo:
-1) Acknowledge footnotes / make lower meta-data available
-2) make delimiter length smartly dependent on number of columns (possible iterative approach)
-3) improve captioning: expand non canonical values in tables [DONE] .. but not to the extent how types match up  --> use this to further
- delineate between caption and headers
-4) UI: parameterize extraction on the show page on the fly
-5) deeper type inference on token level: type complex [DONE], subtype header (centered, capitalized),
-# subtype page nr., type free flow [DONE, need paragraph]
-5a) re
-6) Respect negative values with potential '-' for numerical values
-7)
-8) classify tables with keywords (Muni Bonds) and unsupervised clustering (Hackathon)
-"""
+#Main assumptions Table identificatin:
+#1) each row is either in one line or not a row at all
+#2) each column features at least one number (=dollar amount)
+#2a) each column features at least one date-like string [for time-series only]
+#3) a table exists if rows are in narrow consecutive order and share similarities --> scoring algo [DONE] 
+#4) each column is separated by more than x consecutive whitespace indicators (e.g. '  ' or '..')
 
-from __future__ import print_function
+#Feature List Todo:
+#1) Acknowledge footnotes / make lower meta-data available
+#2) make delimiter length smartly dependent on number of columns (possible iterative approach)
+#3) improve captioning: expand non canonical values in tables [DONE] .. but not to the extent how types match up  --> use this to further
+## delineate between caption and headers
+#4) UI: parameterize extraction on the show page on the fly
+#5) deeper type inference on token level: type complex [DONE], subtype header (centered, capitalized), 
+## subtype page nr., type free flow [DONE, need paragraph]
+#5a) re
+#6) Respect negative values with potential '-' for numerical values
+#7)
+#8) classify tables with keywords (Muni Bonds) and unsupervised clustering (Hackathon)
+#9) Restructure folder and URI around MD5 hash (http://stackoverflow.com/questions/24570066/calculate-md5-from-werkzeug-datastructures-filestorage-without-saving-the-object)
+
+
+# In[2]:
+
 import sys
 import os
 import re
@@ -37,6 +40,13 @@ import string
 
 from collections import Counter, OrderedDict
 
+config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
+          "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
+         "header_good_candidate_length" : 3, "complex_leftover_threshold" : 2, "min_canonical_rows" : 0.2}
+
+
+# In[3]:
+
 import json
 from flask import Flask, request, redirect, url_for, send_from_directory
 from werkzeug import secure_filename
@@ -44,17 +54,14 @@ from flask import jsonify, render_template, make_response
 
 import numpy as np
 import pandas as pd
-
+import matplotlib.pyplot as plt
 
 from backend import return_tables, table_to_df
 
 
-config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
-          "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
-         "header_good_candidate_length" : 3, "complex_leftover_threshold" : 2, "min_canonical_rows" : 0.2}
+# ## Web App ##
 
-
-""" Web App """
+# In[7]:
 
 scripts = []
 css = [
@@ -63,6 +70,7 @@ css = [
     #"./css/main.css",
     #"./css/style.css"
 ]
+
 js = [
     "./thirdparty/angular/angular.js",
     "./js/app.js",
@@ -70,7 +78,6 @@ js = [
     "./js/browser/BrowserDirective.js"
 ]
 
-import matplotlib.pyplot as plt
 
 UPLOAD_FOLDER = './static/ug'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
@@ -90,26 +97,103 @@ def allowed_file(filename):
 def send_bower_components(path):
     return send_from_directory('bower_components', path)
 
+
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-    if request.method == 'POST':
-        file = request.files['file']
 
+    if request.method == 'POST':
+        
+        file = request.files['file']
+        project = request.form['project']
+        
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            print("post for", filename)
             extension = get_extension(file.filename)
-            path = os.path.join(app.config['UPLOAD_FOLDER'], extension)
-            print('trying to write to', path)
-            if not os.path.exists(path):
-              os.makedirs(path)
-            file.save(os.path.join(path, filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename, min_columns=config['min_columns']))
+            path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+            
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], project, filename))
+            
+            if extension == "pdf":
+                txt_path = path+'.txt'
+                filename += '.txt'        
+                if not os.path.isfile(txt_path):
+                    #Layout preservation crucial to preserve clues about tabular data
+                    cmd = "pdftotext -enc UTF-8 -layout %s %s " % (path, txt_path)
+                    os.system(cmd)            
+
+            return redirect(url_for('analyze', filename=filename, project=project))
 
     return render_template('index.html',
         title=TITLE ,
         css=css)
+
+
+
+@app.route('/get_tables/<filename>', methods=['GET', 'POST'])
+def get_tables(filename):   
+
+    project = request.args.get('project')    
+    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    
+    tables_path = path + '.tables.json'
+    with codecs.open(tables_path) as file:
+        tables = json.load(file)   
+
+    return json.dumps(tables)
+
+@app.route('/analyze/<filename>', methods=['GET', 'POST'])
+def analyze(filename):   
+
+    project = request.args.get('project')
+    txt_path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    
+    if not os.path.isfile(txt_path):
+        return {'error' : txt_path+' not found' }
+    
+    tables = return_tables(txt_path)
+    
+    #Export tables
+    with codecs.open(txt_path + '.tables.json', 'w', "utf-8") as file:
+        json.dump(tables, file)
+
+    #Export chart
+    lines_per_page = 80
+    nr_data_rows = []
+    #for t in tables.values():
+    #    print t
+    for key, t in tables.iteritems():
+        e = t['end_line']
+        b = t['begin_line']
+        for l in range(b, e):
+            page = l / lines_per_page
+            if len(nr_data_rows) <= page:
+                nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
+            nr_data_rows[page] += 1
+    dr = pd.DataFrame()
+    dr['value'] = nr_data_rows
+    dr['page'] = range(0, len(dr))
+
+    #plot the row density
+    chart = filename+".png"
+    fig, ax = plt.subplots( nrows=1, ncols=1, figsize=(8,3) )  # create figure & 1 axis
+    ax.set_ylabel('page number')
+    ax.set_xlabel('number of data rows')
+    ax.set_title('Distribution of Data Rows per Page')
+    
+    BARHEIGHT = 0.4
+    ax.barh(1 + np.array(dr['page']) - BARHEIGHT/2.0 , dr['value'], BARHEIGHT )
+
+    xticks = np.arange(1, np.ceil(max( dr['page'] )) + 2 )
+    ax.set_yticks(xticks)
+    fig.tight_layout()
+    fig.savefig(txt_path + '.png')   # save the figure to file
+    plt.close(fig)                      # close the figure
+
+    if request.method == 'POST':
+        return json.dumps(tables)
+    
+    return redirect(url_for('uploaded_file', filename=filename, project=project))
 
 @app.route('/browser')
 def test():
@@ -121,72 +205,35 @@ def test():
 
 @app.route('/show/<filename>')
 def uploaded_file(filename):
-    extension = get_extension(filename)
 
-    pdf_folder = os.path.join(app.config['UPLOAD_FOLDER'], extension)
-    txt_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'txt')
-
-    path = os.path.join(pdf_folder, filename)
-    txt_path = os.path.join(txt_folder, filename)
-
-    if not os.path.exists(pdf_folder):
-      os.makedirs(pdf_folder)
-    if not os.path.exists(txt_folder):
-      os.makedirs(txt_folder)
-
-    print("showing text", txt_folder)
+    project = request.args.get('project')    
+    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
     
-    if extension == "pdf":
-        txt_path += '.txt'
-        filename += '.txt'
-        if not os.path.isfile(txt_path):
-            #Layout preservation crucial to preserve clues about tabular data
-            cmd = "pdftotext -enc UTF-8 -layout %s %s" % (path, txt_path)
-            os.system(cmd)
+    tables_path = path + '.tables.json'
+    chart_path = path+".png"
+    
+    if not os.path.isfile(tables_path):
+        analyze(path)
 
-    min_columns = request.args.get('min_columns')
-    tables = return_tables(txt_path)
-
-    #Construct histogram
-    lines_per_page = 80
-    nr_data_rows = []
-    for b, t in tables.items():
-        e = t['end_line']
-        #print b, e
-        for l in range(b, e):
-            page = int(l / lines_per_page)
-            if len(nr_data_rows) <= page:
-                nr_data_rows += ([0]*int(page-len(nr_data_rows)+1))
-            nr_data_rows[page] += 1
-    dr = pd.DataFrame()
-    dr['value'] = nr_data_rows
-    dr['page'] = list(range(0, len(dr)))
-
-    #plot the row density
-    chart = filename+".png"
-    fig, ax = plt.subplots( nrows=1, ncols=1, figsize=(8,3) )  # create figure & 1 axis
-    ax.set_xlabel('page nr.')
-    ax.set_ylabel('number of data rows')
-    ax.set_title('Distribution of Rows with Data')
-    ax.plot(dr['page'], dr['value'], )
-    fig.savefig('./static/ug/'+chart)   # save the figure to file
-    plt.close(fig)                      # close the figure
+    with codecs.open(tables_path) as file:
+        tables = json.load(file)   
 
     #Create HTML
-    notices = ['Extraction Results for ' + filename, 'Ordered by lines']
-    dfs = (table_to_df(table).to_html() for table in list(tables.values()))
+    notices = ['Extraction Results for ' + filename, 'Ordered by lines']    
+    dfs = (table_to_df(table).to_html() for table in tables.values())
     headers = []
-    for t in list(tables.values()):
+    for t in tables.values():
         if 'header' in t:
             headers.append(t['header'])
         else:
             headers.append('-')
-    meta_data = [{'begin_line' : t['begin_line'], 'end_line' : t['end_line']} for t in list(tables.values())]
+    meta_data = [{'begin_line' : t['begin_line'], 'end_line' : t['end_line']} for t in tables.values()]
 
     return render_template('viewer.html',
         title=TITLE + ' - ' + filename,
-        base_scripts=scripts, filename=filename,
-        css=css, notices = notices, tables = dfs, headers=headers, meta_data=meta_data, chart='../static/ug/'+chart)
+        base_scripts=scripts, filename=filename, project=project,
+        css=css, notices = notices, tables = dfs, headers=headers, meta_data=meta_data, chart=chart_path)
+
 
 @app.route('/inspector/<filename>')
 def inspector(filename):
@@ -213,6 +260,8 @@ def inspector(filename):
         table_lines=table_lines, bottom_lines=bottom_lines, offset=offset, table_id=begin_line)
 
 
+# In[8]:
+
 def run_from_ipython():
     try:
         __IPYTHON__
@@ -220,9 +269,14 @@ def run_from_ipython():
     except NameError:
         return False
 
-if __name__ == "__main__":
-    if run_from_ipython():
-        app.run(host='0.0.0.0', port = 7080) #Borrow Zeppelin port for now
-    else:
-        PORT = int(os.getenv('PORT', 8000))
-        app.run(debug=True, host='0.0.0.0', port = PORT)
+if run_from_ipython():
+    app.run(host='0.0.0.0', port = 7080) #Borrow Zeppelin port for now
+else:
+    PORT = int(os.getenv('PORT', 8000))
+    app.run(debug=True, host='0.0.0.0', port = PORT)
+
+
+# In[ ]:
+
+
+
