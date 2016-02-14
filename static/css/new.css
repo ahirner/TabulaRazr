@@ -113,8 +113,12 @@ body {
 .right-wrapper {
 	top: 0;
 	bottom: 0;
-	left: 0;
-	right: 0;
+	width: 100%;
+}
+
+/* tables */
+th.active {
+	color: #24b0f0;
 }
 
 /* animations */

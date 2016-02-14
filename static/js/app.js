@@ -13,7 +13,8 @@
     }).
     state('Browser', {
       url: '/browser',
-      templateUrl: '/static/js/browser/browser.tpl.html'
+      templateUrl: '/static/js/browser/browser.tpl.html',
+      controller: 'BrowserCtrl'
     });
   }]);
 })();

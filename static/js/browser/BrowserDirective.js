@@ -7,7 +7,6 @@
 		return {
 			restrict: 'E',
 			replace: true,
-			controller: 'BrowserCtrl',
 			templateUrl: './static/js/browser/browser.tpl.html'
 		}
 	}
