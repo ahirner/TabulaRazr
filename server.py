@@ -74,12 +74,14 @@ js = [
     "./thirdparty/angular/angular.js",
     "./thirdparty/angular-ui-router/release/angular-ui-router.js",
     "./js/app.js",
+    "./js/controller.js",
     "./js/browser/controller.js",
     "./js/browser/BrowserDirective.js",
     "./thirdparty/lf-ng-md-file-input/dist/lf-ng-md-file-input.js",
     "./thirdparty/angular-animate/angular-animate.min.js",
     "./thirdparty/angular-aria/angular-aria.min.js",
-    "./thirdparty/angular-material/angular-material.min.js"
+    "./thirdparty/angular-material/angular-material.min.js",
+    "./thirdparty/ng-file-upload/ng-file-upload.js",
 ]
 
 

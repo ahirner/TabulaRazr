@@ -1,5 +1,5 @@
 (function() {
-	var app = angular.module('tabularazr', ['ui.router','ngMaterial','lfNgMdFileInput']);
+	var app = angular.module('tabularazr', ['ui.router','ngMaterial','lfNgMdFileInput','ngFileUpload']);
 
 	app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$mdThemingProvider', function ($stateProvider, $urlRouterProvider, $locationProvider, $mdThemingProvider) {
     $urlRouterProvider.otherwise('/');
@@ -11,7 +11,8 @@
     $stateProvider.
     state('Home', {
       url: '/',
-      templateUrl: '/static/templates/index.tpl.html'
+      templateUrl: '/static/templates/index.tpl.html',
+      controller: 'HomeCtrl'
     }).
     state('Browser', {
       url: '/browser',
