@@ -1,0 +1,3 @@
+[submodule "retina-sdk.py"]
+	path = retina-sdk.py
+	url = https://github.com/cortical-io/retina-sdk.py
