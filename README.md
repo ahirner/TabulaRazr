@@ -15,7 +15,7 @@ Navigate to [http://localhost:8000](http://localhost:8000) and upload an example
 - [,/static](./static) ... all stylesheets and media goes there
 - [./static/ug/<project_name>](./static/ug/) ... user uploaded data and analysis files (graphs, json)
 
-## Exapmples
+## Examples
 
 see [EXAMPLES.md](EXAMPLES.md)
 
