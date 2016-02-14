@@ -173,6 +173,7 @@ def analyze(filename):
 
     xticks = np.arange(0, np.ceil(max( dr['page'] )) + 2 )
     ax.set_xticks(xticks)
+    ax.set_xlim([0, xticks[-1]] )
     fig.tight_layout()
     fig.savefig(txt_path + '.png')   # save the figure to file
     plt.close(fig)                      # close the figure
@@ -224,7 +225,9 @@ def uploaded_file( filename ):
 
 @app.route('/inspector/<filename>')
 def inspector(filename):
-    project = request.args.get('project')    
+    project = request.args.get('project')
+    project = project if project is not None else ""
+    print("project:", project)
     path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
  
     begin_line = int(request.args.get('data_begin'))
