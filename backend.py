@@ -18,7 +18,7 @@ from flask import jsonify, render_template, make_response
 
 import numpy as np
 import pandas as pd
-
+import logging
 
 config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
           "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
@@ -169,7 +169,7 @@ def filter_row_spans_new(row_features, row_qualifies=row_qualifies, ):
             else:
                 if last_qualified:
                     consistency_check = True
-        print(i, last_qualified, consecutive, consistency_check, row_to_string(row))
+        logging.debug(i, last_qualified, consecutive, consistency_check, row_to_string(row))
         i += 1
 
     if consecutive >= min_consecutive:
@@ -221,7 +221,7 @@ def filter_row_spans(row_features, row_qualifies):
                 last_qualified = None
                 consecutive = 0
                 underqualified = 0
-        print(i, underqualified, last_qualified, consecutive)#, "" or row
+        logging.debug(i, underqualified, last_qualified, consecutive)#, "" or row
         i += 1
 
     if consecutive >= min_consecutive:
