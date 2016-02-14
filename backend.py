@@ -359,7 +359,7 @@ def indexed_tables_from_rows(row_features):
         last_end = tables[b]['end_line']
     return tables
 
-def return_tables(txt_path):
+def parse_tables(txt_path):
 
     #Uniquely identify tables by their first row
     tables = OrderedDict()
