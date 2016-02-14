@@ -128,7 +128,7 @@ class InputFile():
     @property
     def filepath( self ):
         """ the path to the raw pdf file"""
-        return  os.path.join( self.filedir)
+        return  os.path.join( self.filedir, self.filename)
 
    
 @app.route('/', methods=['GET', 'POST'])
@@ -153,6 +153,7 @@ def upload_file():
                 os.makedirs(filedir)
 
             filepath = inp.filepath
+            print ("FILE:", file,   "FILEPATH", filepath, file=sys.stderr)
             file.save( filepath )
              
             if extension == "pdf":
@@ -162,7 +163,7 @@ def upload_file():
                     #Layout preservation crucial to preserve clues about tabular data
                     cmd = "pdftotext -enc UTF-8 -layout %s %s " % ( filepath , txt_path)
                     
-                    print( cmd , file = sys.stderr)
+                    print( "[PDF CONVERSION CMD:]", cmd , file = sys.stderr)
                     os.system(cmd)            
                 else:
                     print( "skipping conversion" , file = sys.stderr)
