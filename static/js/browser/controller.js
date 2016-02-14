@@ -263,6 +263,8 @@
       }
     }
   ]
-}
+		}
+
+		$scope.sort.by = $scope.data.meta[0].value;
 	}
 })();
