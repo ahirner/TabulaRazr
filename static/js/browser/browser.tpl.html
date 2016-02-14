@@ -2,16 +2,22 @@
   <div class="browser-wrapper">
     <div class="left fill">
       <div class="top">
-        <ul>
-          <li ng-repeat="item in test">{{item.header}}</li>
-        </ul>
+        <md-subheader>Similar Tables in Project</md-subheader>
+        <md-list>
+          <md-list-item class="md-2-line"ng-repeat="item in similarData">
+            <a href="javascript:void(0)" ng-click="switchData(item)">
+              <div class="md-list-item-text">
+                {{item._id.filename}} - {{item._id.table_id}}</a>
+              </div>
+          </md-list-item>
+        </md-list>
       </div>
       <div class="bot">
-        {{sort}}
       </div>
     </div>
     <div class="right fill">
       <div class="right-wrapper">
+        <md-header>Viewing filename: {{data._id.filename}} - table {{data._id.table_id}}</md-header>
         <table class="table table-striped dataframe" width="100%">
           <thead>
             <tr style="text-align: right;">

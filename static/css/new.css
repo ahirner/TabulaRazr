@@ -123,6 +123,12 @@ body {
 /* tables */
 th.active {
 	color: #24b0f0;
+	outline: none;
+}
+
+/* md overrides */
+md-list-item.md-2-line, md-list-item.md-2-line>.md-no-style {
+	min-height: 40px;
 }
 
 /* animations */

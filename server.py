@@ -128,7 +128,7 @@ class InputFile():
     @property
     def filepath( self ):
         """ the path to the raw pdf file"""
-        return  os.path.join( self.filedir, self.filename)
+        return  os.path.join( self.filedir)
 
    
 @app.route('/', methods=['GET', 'POST'])
@@ -177,10 +177,16 @@ def upload_file():
 # + project, table_id in the query string <--- not anymore, 
 @app.route('/api/get_table/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_table(filename, project, table_id):
+    if project == "-":
+        project = None
     return json.dumps(get_table_frontend(project, filename, table_id))
 
 @app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_similar_tables_all(filename, project, table_id):
+
+    if project == "-":
+        project = None
+        
     tables = [get_table_frontend(pr, fn, t_id) for fn, pr, t_id in \
                         get_nearest_neighbors(project, filename, table_id, True)]
     return json.dumps(tables)
@@ -191,7 +197,7 @@ def get_table_frontend(project, filename, table_id):
     upload = app.config['UPLOAD_FOLDER']
     inp = InputFile(upload, project, filename)
 
-    table_path = inp.filepath + '.table.json'
+    table_path = inp.filepath + "/" + table_id + '.table.json'
     with codecs.open(table_path) as file:
         table = json.load(file)
 
