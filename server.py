@@ -71,6 +71,8 @@ css = [
     "./thirdparty/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css",
     "./thirdparty/morrisjs/morris.css",
     "./thirdparty/font-awesome/css/font-awesome.min.css",
+    "./thirdparty/lf-ng-md-file-input/dist/lf-ng-md-file-input.css",
+    "./thirdparty/angular-material/angular-material.min.css",
     "./css/new.css"
 ]
 
@@ -79,7 +81,11 @@ js = [
     "./thirdparty/angular-ui-router/release/angular-ui-router.js",
     "./js/app.js",
     "./js/browser/controller.js",
-    "./js/browser/BrowserDirective.js"
+    "./js/browser/BrowserDirective.js",
+    "./thirdparty/lf-ng-md-file-input/dist/lf-ng-md-file-input.js",
+    "./thirdparty/angular-animate/angular-animate.min.js",
+    "./thirdparty/angular-aria/angular-aria.min.js",
+    "./thirdparty/angular-material/angular-material.min.js"
 ]
 
 
