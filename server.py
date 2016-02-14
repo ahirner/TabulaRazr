@@ -85,6 +85,68 @@ def allowed_file(filename):
 def send_bower_components(path):
     return send_from_directory('bower_components', path)
 
+##### API 
+
+
+# + project, table_id in the query string
+@app.route('/api/get_table/<filename>', methods=['GET', 'POST'])
+def get_table(filename):   
+
+    project = request.args.get('project')
+    table_id = request.args.get('table_id')     
+
+    return get_table_json(filename, project, table_id)
+
+
+
+def get_table_json(filename, project, table_id):   
+    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    
+    tables_path = path + '.tables.json'
+    with codecs.open(tables_path) as file:
+        tables = json.load(file)
+
+    table = tables[table_id]
+    
+    captions = [{ 'value': c } for c in table['captions']]
+    for i, c in enumerate(table['captions']):
+        captions[i]['type'] = table['types'][i]
+        captions[i]['subtype'] = table['subtypes'][i]
+        string_collated = (table['types'][i] + table['subtypes'][i])
+        sample_color = string_collated[0] + string_collated[-1] + string_collated[len(string_collated)/2]
+        captions[i]['color'] = "#F%sF%sF%s" % tuple(sample_color)
+
+    
+    rows = []
+    
+    for i in range(len(table['data'])):
+        row = {}
+        for j, c in enumerate(captions):
+            row[c['value']] = table['data'][i][j]
+        rows.append(row)
+        
+    captions['table_id'] = table_id
+    captions['filename'] = filename
+    captions['project'] = project
+
+    return json.dumps({'meta' : captions, 'data' : rows})
+
+
+
+
+@app.route('/get_tables/<filename>', methods=['GET', 'POST'])
+def get_tables(filename):   
+
+    project = request.args.get('project')    
+    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    
+    tables_path = path + '.tables.json'
+    with codecs.open(tables_path) as file:
+        tables = json.load(file)   
+
+
+
+### WEB
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -115,17 +177,6 @@ def upload_file():
     return render_template('index.html',
         title=TITLE ,
         css=css)
-
-
-@app.route('/get_tables/<filename>', methods=['GET', 'POST'])
-def get_tables(filename):   
-
-    project = request.args.get('project')    
-    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
-    
-    tables_path = path + '.tables.json'
-    with codecs.open(tables_path) as file:
-        tables = json.load(file)   
 
     return json.dumps(tables)
 
