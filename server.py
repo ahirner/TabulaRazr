@@ -191,7 +191,7 @@ def test():
         js=js)
 
 @app.route('/show/<filename>')
-def uploaded_file( path ):
+def uploaded_file( filename ):
 
     project = request.args.get('project')    
     path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
