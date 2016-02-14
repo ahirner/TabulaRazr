@@ -14,7 +14,7 @@
       templateUrl: '/static/templates/index.tpl.html'
     }).
     state('Browser', {
-      url: '/browser',
+      url: '/browser?filename&table_id',
       templateUrl: '/static/js/browser/browser.tpl.html',
       controller: 'BrowserCtrl'
     });

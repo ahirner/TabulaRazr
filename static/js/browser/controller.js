@@ -1,9 +1,12 @@
 (function() {
   angular.
   module('tabularazr').
-  controller('BrowserCtrl', ['$scope', '$http', BrowserCtrl]);
+  controller('BrowserCtrl', ['$scope', '$http', '$state', BrowserCtrl]);
 
-  function BrowserCtrl($scope, $http) {
+  function BrowserCtrl($scope, $http, $state) {
+    var indexOfExtension = $state.params.filename.split('.');
+    var filename = indexOfExtension[0];
+    var table_id = $state.params.table_id;
     $scope.sort = {
       rev: true
     };
@@ -23,7 +26,7 @@
       getSimilar(apiUrlForSimilarTables)
     }
 
-    $http.get('http://0.0.0.0:7081/api/get_table/-/EP753324-ER508056-ER910760/234').then(function(response) {
+    $http.get('http://0.0.0.0:7081/api/get_table/-/' + filename + '/' + table_id).then(function(response) {
       $scope.data = response.data;
       $scope.sort.by = $scope.data.meta[0].value;
 
