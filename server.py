@@ -210,14 +210,14 @@ def analyze(filename):
     for kk, vv in six.iteritems(tables):
         table_path = os.path.join( filedir, "%s" % kk)
         print( "table_path" , table_path)
-        with codecs.open(table_path + '.tables.json', 'w', "utf-8") as file:
+        with codecs.open(table_path + '.table.json', 'w', "utf-8") as file:
             json.dump( vv ,  file)
 
     #Export chart
     dr = page_statistics(tables,  lines_per_page = 80)
 
     #plot the row density
-    chartpath = os.path.join(filedir, "chart"  + '.png' )
+    chart_path = os.path.join(filedir, "chart"  + '.png' )
 
     fig, ax = plt.subplots( nrows=1, ncols=1, figsize=(8,3) )  # create figure & 1 axis
     ax.set_xlabel('page number')
@@ -231,7 +231,7 @@ def analyze(filename):
     ax.set_xticks(xticks)
     ax.set_xlim([0, xticks[-1]] )
     fig.tight_layout()
-    fig.savefig( chartpath)   # save the figure to file
+    fig.savefig( chart_path)   # save the figure to file
     plt.close(fig)                      # close the figure
 
     #if request.method == 'POST':
@@ -251,28 +251,38 @@ def test():
 def uploaded_file( filename ):
 
     project = request.args.get('project')    
-    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    #path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    filebase = basename(filename)
+    filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase)
+    #filepath = os.path.join(filedir , filename)
     
-    tables_path = path + '.tables.json'
-    chart_path = path+".png"
-    
-    if not os.path.isfile(tables_path):
-        analyze(path)
+    def get_tables( filedir, suffix = '.table.json'):
+        tablelist = list( filter( lambda x : x.endswith(suffix) , os.listdir( filedir ) ) )
+        if len( tablelist ) == 0:
+            analyze(path)
 
-    with codecs.open(tables_path) as file:
-        tables = json.load(file)   
+        for tf in filter( lambda x : x.endswith(suffix) , os.listdir( filedir ) ):
+            with codecs.open( os.path.join(filedir,tf) )  as file:
+                table = json.load( file )
+                yield table #_to_df(table).to_html()
+
+    tables = get_tables( filedir, suffix = '.table.json')
+    dfs = (table_to_df(table).to_html() for table in tables )
+
 
     #Create HTML
     notices = ['Extraction Results for ' + filename, 'Ordered by lines']    
-    dfs = (table_to_df(table).to_html() for table in tables.values())
     headers = []
-    for t in tables.values():
+    meta_data = []
+    for t in get_tables( filedir, suffix = '.table.json') :
+        meta_data.append( {'begin_line' : t['begin_line'], 'end_line' : t['end_line']} )
         if 'header' in t:
             headers.append(t['header'])
         else:
             headers.append('-')
-    meta_data = [{'begin_line' : t['begin_line'], 'end_line' : t['end_line']} for t in tables.values()]
 
+    print( "meta_data",  meta_data )
+    chart_path = os.path.join(filedir, "chart"  + '.png' )
     return render_template('viewer.html',
         title=TITLE + ' - ' + filename,
         base_scripts=scripts, filename=filename, project=project,
