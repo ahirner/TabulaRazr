@@ -397,5 +397,5 @@ if __name__ == "__main__":
     if run_from_ipython():
         app.run(host='0.0.0.0', port = 7080) #Borrow Zeppelin port for now
     else:
-        PORT = int(os.getenv('PORT', 8080))
+        PORT = int(os.getenv('PORT', 8000))
         app.run(debug=True, host='0.0.0.0', port = PORT)
