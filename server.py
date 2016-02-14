@@ -136,11 +136,11 @@ def analyze(filename):
     nr_data_rows = []
     #for t in tables.values():
     #    print t
-    for key, t in tables.iteritems():
+    for key, t in tables.items():
         e = t['end_line']
         b = t['begin_line']
         for l in range(b, e):
-            page = l / lines_per_page
+            page = int(l / lines_per_page)
             if len(nr_data_rows) <= page:
                 nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
             nr_data_rows[page] += 1
