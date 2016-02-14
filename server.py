@@ -28,7 +28,7 @@ Feature List Todo:
 """
 
 from __future__ import print_function
-import sys, os, re
+import sys, os, re, six
 
 import codecs
 import string
@@ -86,7 +86,11 @@ def send_bower_components(path):
     return send_from_directory('bower_components', path)
 
 
-
+def basename(filename):
+    filename = secure_filename(filename)
+    filebase = filename.replace(".pdf","").replace(".txt", "")
+    return filebase
+    
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
 
@@ -96,19 +100,29 @@ def upload_file():
         project = request.form['project']
         
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
             extension = get_extension(file.filename)
-            path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
-            
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], project, filename))
-            
+
+            filename = secure_filename(file.filename)
+            filebase = basename( file.filename ) 
+            filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase )
+            try:
+                os.mkdir(filedir)
+            except:
+                pass
+            filepath =  os.path.join( filedir, filename )
+            file.save( filepath )
+             
             if extension == "pdf":
-                txt_path = path+'.txt'
+                txt_path = filepath + '.txt'
                 filename += '.txt'        
                 if not os.path.isfile(txt_path):
                     #Layout preservation crucial to preserve clues about tabular data
-                    cmd = "pdftotext -enc UTF-8 -layout %s %s " % (path, txt_path)
+                    cmd = "pdftotext -enc UTF-8 -layout %s %s " % ( filepath , txt_path)
+                    
+                    print( cmd , file = sys.stderr)
                     os.system(cmd)            
+                else:
+                    print( "skipping conversion" , file = sys.stderr)
 
             return redirect(url_for('analyze', filename=filename, project=project))
 
@@ -126,13 +140,11 @@ def get_table(filename):
     return get_table_json(filename, project, table_id)
 
 def get_table_json(filename, project, table_id):
-    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename, table_id)
 
-    tables_path = path + '.tables.json'
+    tables_path = path + '.table.json'
     with codecs.open(tables_path) as file:
-        tables = json.load(file)
-
-    table = tables[table_id]
+        table = json.load(file)
 
     captions = [{ 'value': c } for c in table['captions']]
     for i, c in enumerate(table['captions']):
@@ -141,7 +153,6 @@ def get_table_json(filename, project, table_id):
         string_collated = (table['types'][i] + table['subtypes'][i])
         sample_color = string_collated[0] + string_collated[-1] + string_collated[len(string_collated)/2]
         captions[i]['color'] = "#F%sF%sF%s" % tuple(sample_color)
-
 
     rows = []
 
@@ -176,27 +187,38 @@ def page_statistics(table_dict,  lines_per_page = 80):
     chart['page'] = range(0, len(chart))
     return chart 
 
+def getdir( upload, project, filename ):
+    filebase = basename(filename)
+    filedir = os.path.join(upload , project, filebase)
+    return filedir
 
 @app.route('/analyze/<filename>', methods=['GET', 'POST'])
 def analyze(filename):   
 
     project = request.args.get('project')
-    txt_path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    filebase = basename(filename)
+    filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase)
+    filepath = os.path.join(filedir , filename)
     
-    if not os.path.isfile(txt_path):
-        return {'error' : txt_path+' not found' }
+    if not os.path.isfile( filepath ):
+        print( filepath , " not found ", file = sys.stderr )
+        return jsonify({'error' : filepath +' not found' })
     
-    tables = parse_tables(txt_path)
+    tables = parse_tables(  filepath )
     
-    #Export tables
-    with codecs.open(txt_path + '.tables.json', 'w', "utf-8") as file:
-        json.dump(tables, file)
+    """Export tables"""
+    for kk, vv in six.iteritems(tables):
+        table_path = os.path.join( filedir, "%s" % kk)
+        print( "table_path" , table_path)
+        with codecs.open(table_path + '.tables.json', 'w', "utf-8") as file:
+            json.dump( vv ,  file)
 
     #Export chart
     dr = page_statistics(tables,  lines_per_page = 80)
 
     #plot the row density
-    chart = filename+".png"
+    chartpath = os.path.join(filedir, "chart"  + '.png' )
+
     fig, ax = plt.subplots( nrows=1, ncols=1, figsize=(8,3) )  # create figure & 1 axis
     ax.set_xlabel('page number')
     ax.set_ylabel('number of data rows')
@@ -209,11 +231,11 @@ def analyze(filename):
     ax.set_xticks(xticks)
     ax.set_xlim([0, xticks[-1]] )
     fig.tight_layout()
-    fig.savefig(txt_path + '.png')   # save the figure to file
+    fig.savefig( chartpath)   # save the figure to file
     plt.close(fig)                      # close the figure
 
-    if request.method == 'POST':
-        return json.dumps(tables)
+    #if request.method == 'POST':
+    #    return json.dumps(tables)
     
     return redirect(url_for('uploaded_file', filename=filename, project=project))
 
@@ -256,13 +278,34 @@ def uploaded_file( filename ):
         base_scripts=scripts, filename=filename, project=project,
         css=css, notices = notices, tables = dfs, headers=headers, meta_data=meta_data, chart=chart_path)
 
+class InputFile():
+    def __init__(self, upload, project , filename):
+        self.upload = upload
+        self.project = project
+        self.filename = filename
+
+    @property
+    def basename(self):
+        self.filename = secure_filename( self.filename)
+        filebase = self.filename.replace(".pdf","").replace(".txt", "")
+        return filebase
+    
+    @property
+    def filedir(self):
+        return  os.path.join( self.upload, self.project, self.basename )
+
+    @property
+    def filepath( self ):
+        return  os.path.join( self.filedir, self.filename)
 
 @app.route('/inspector/<filename>')
 def inspector(filename):
     project = request.args.get('project')
     project = project if project is not None else ""
     print("project:", project)
-    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    filebase = basename( filename )
+    filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase )
+    filepath = os.path.join(filedir, filename)
  
     begin_line = int(request.args.get('data_begin'))
     end_line = int(request.args.get('data_end'))
@@ -270,7 +313,7 @@ def inspector(filename):
     margin_bottom = margin_top
 
     notices = ['showing data lines from %i to %i with %i meta-lines above and below' % (begin_line, end_line, margin_top)]
-    with codecs.open(path, "r", "utf-8") as file:
+    with codecs.open(filepath , "r", "utf-8") as file:
         lines = [l.encode('utf-8') for l in file][begin_line - margin_top:end_line + margin_bottom]
         top_lines = lines[:margin_top]
         table_lines = lines[margin_top:margin_top+end_line-begin_line]
@@ -293,6 +336,8 @@ def run_from_ipython():
         return False
 
 if __name__ == "__main__":
+    app.debug = True
+
     if run_from_ipython():
         app.run(host='0.0.0.0', port = 7080) #Borrow Zeppelin port for now
     else:
