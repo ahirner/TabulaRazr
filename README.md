@@ -13,6 +13,7 @@ We use IBM BlueMix to perform PDF to text conversion.
 
 ## Setup and run
 
+    npm install -g bower
     pip install -r requirements.txt
     bower install
     python server.py
