@@ -163,16 +163,16 @@ def upload_file():
 # + project, table_id in the query string <--- not anymore, 
 @app.route('/api/get_table/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_table(filename, project, table_id):
-    return json.dumps(get_table_frontend(filename, project, table_id))
+    return json.dumps(get_table_frontend(project, filename, table_id))
 
 @app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_similar_tables_all(filename, project, table_id):
-    tables = [get_table_frontend(fn, pr, t_id) for fn, pr, t_id in \
+    tables = [get_table_frontend(pr, fn, t_id) for fn, pr, t_id in \
                         get_nearest_neighbors(project, filename, table_id, True)]
     return json.dumps(tables)
     
     
-def get_table_frontend(filename, project, table_id):
+def get_table_frontend(project, filename, table_id):
             #filepath =  os.path.join( filedir, filename )
     upload = app.config['UPLOAD_FOLDER']
     inp = InputFile(upload, project, filename)
