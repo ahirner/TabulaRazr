@@ -1,36 +1,71 @@
 <div class="main-wrapper animate slide-in-left">
 	<div class="content">
 		<h1>Extract and semantically link tabular data... Easily!</h1>
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<style>
+			.xlarge {
+				font-size: 80px;
+				margin-left:-10px;
+				margin-top:-9px;
+				position: absolute;
+				transition: color 0.3s;
+			}
+			.xlarge:hover{
+				color: #03A9F4;
+			}
+			
+			md-card{
+				margin-bottom:2em;
+			}
+		</style>
+		<div class="col-md-5">
+			 <md-card>
+		        <md-card-title>
+		          <md-card-title-text>
+		            <span class="md-headline">Upload & Extract Files Easily!</span>
+		            <span class="md-subhead">Upload any PDF/TXT file and tabular data will be extracted</span>
+		          </md-card-title-text>
+		          <i class="xlarge material-icons">attachment</i>
+		          <md-card-title-media>
+		            <div class="md-media-sm card-media"></div>
+		          </md-card-title-media>
+		        </md-card-title>
+		      </md-card>
+		      <md-card>
+		        <md-card-title>
+		          <md-card-title-text>
+		            <span class="md-headline">View Data in Browser</span>
+		            <span class="md-subhead">View and analyze data in table forms</span>
+		          </md-card-title-text>
+		          <i class="xlarge material-icons">dashboard</i>
+		          <md-card-title-media>
+		            <div class="md-media-sm card-media"></div>
+		          </md-card-title-media>
+		        </md-card-title>
+		      </md-card>
+		      <md-card>
+		        <md-card-title>
+		          <md-card-title-text>
+		            <span class="md-headline">Browse Similar Data</span>
+		            <span class="md-subhead">Browse, explore and analyze similar data</span>
+		          </md-card-title-text>
+		          <i class="xlarge material-icons">find_in_page</i>
+		          <md-card-title-media>
+		            <div class="md-media-sm card-media"></div>
+		          </md-card-title-media>
+		        </md-card-title>
+		      </md-card>
+		</div>
+		
+		<div class="col-md-1"><i class="xlarge material-icons" style="margin-top:25px; color:#0288D1">forward</i></div>
 
 		<form class="form form-horizontal col-md-6" action="" method="post" enctype="multipart/form-data">
 			<h2>Upload & Extract Files</h2>
-			<div class="form-group">
-				<label class="control-label col-sm-2">Select file</label>
-				<div class="col-sm-10">
-		  		<input type="file" name="file" class="form-control" id="file">
-		  	</div>
-			</div>
 
 		  <div class="form-group">
-		  	<label class="control-label col-sm-2">Project</label>
-
-				<div class="col-sm-10">
-				  <select name="project">
-					  <option value="">/</option>
-					  <option value="muni_bonds">Municipal Bonds</option>              
-				  </select>
-			  </div>
-		  </div>
-
-		  <div class="form-group">
-		  	<div class="col-sm-2"></div>
-		  	<div class="col-sm-10">
-		  		<input name="upload" id="upload" type="submit" value="Upload" class="btn btn-primary">
-		  	</div>
-		  </div>
 		  
 		  <!-- Source: https://github.com/shuyu/angular-material-fileinput -->
-			<div class="form-group">
+			<div class="form-group ">
 			  	<label class="control-label col-sm-2">Project</label>
 	
 					<div class="col-sm-10">
@@ -43,8 +78,37 @@
 			<lf-ng-md-file-input lf-files="files" lf-option="optoin08" lf-drag-and-drop-label="Drag and Drop PDF/txt files here!" lf-placeholder="Pick a file" lf-browse-label="Browse" lf-remove-label="Delete" multiple drag preview ng-disabled="disabled06"></lf-ng-md-file-input>
 			<br>
 			<md-button class="md-raised md-primary" ng-click="fuck()">Upload</md-button>
+		  </div>
+		  <md-tooltip>
+        Sorry the files for the drag & drop upload feature are unable to be uploaded due to an unexpected issue, please use the standard file uploader below
+      </md-tooltip>
+		  
+
+			<div class="form-group">
+					  	  	<label class="control-label col-sm-2">Project</label>
+					  	  	<!--<div class="col-sm-1"></div>-->
+			  <div  class="col-sm-4"><select name="project">
+				  <option value="">/</option>
+				  <option value="muni_bonds">Municipal Bonds</option>              
+			  </select></div>
+		  </div>
+		  
+  			<div class="form-group">
+				<label class="control-label col-sm-2">Select file</label>
+				<div class="col-sm-10">
+		  		<input type="file" name="file" class="form-control" id="file">
+		  	</div>
+			</div>
+
+		  <div class="form-group">
+		  	<div class="col-sm-2"></div>
+		  	<div class="col-sm-10">
+		  		<input name="upload" id="upload" type="submit" value="Upload" class="btn btn-primary">
+		  	</div>
+		  </div>
+		  
 		</form>
-		<div class="col-md-6">
+		<!--<div class="col-md-6">
 			<h2>View & Edit Project Settings</h2>
 			<label class="control-label col-sm-2">Project</label>
 			<div class="col-sm-10">
@@ -68,6 +132,6 @@
 			</div>
 					
 
-		</div>
+		</div>-->
 	</div>
 </div>
