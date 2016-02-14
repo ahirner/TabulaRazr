@@ -1,39 +1,51 @@
-#!/usr/bin/env python
+
 # coding: utf-8
 
-"""
-DocX - TABLE Parser
-Infers a table with arbitrary number of columns from reoccuring patterns in text lines
-(c) Alexander Hirner 2016, no redistribution without permission
+# In[1]:
 
-Main assumptions Table identificatin:
-1) each row is either in one line or not a row at all
-2) each column features at least one number (=dollar amount)
-2a) each column features at least one date-like string [for time-series only]
-3) a table exists if rows are in narrow consecutive order and share similarities --> scoring algo [DONE]
-4) each column is separated by more than x consecutive whitespace indicators (e.g. '  ' or '..')
+#DocX - TABLE Parser
+#Infers a table with arbitrary number of columns from reoccuring patterns in text lines
+#(c) Alexander Hirner 2016, no redistribution without permission
 
-Feature List Todo:
-1) Acknowledge footnotes / make lower meta-data available
-2) make delimiter length smartly dependent on number of columns (possible iterative approach)
-3) improve captioning: expand non canonical values in tables [DONE] .. but not to the extent how types match up  --> use this to further
- delineate between caption and headers
-4) UI: parameterize extraction on the show page on the fly
-5) deeper type inference on token level: type complex [DONE], subtype header (centered, capitalized),
-# subtype page nr., type free flow [DONE, need paragraph]
-5a) re
-6) Respect negative values with potential '-' for numerical values
-7)
-8) classify tables with keywords (Muni Bonds) and unsupervised clustering (Hackathon)
-"""
+#Main assumptions Table identificatin:
+#1) each row is either in one line or not a row at all
+#2) each column features at least one number (=dollar amount)
+#2a) each column features at least one date-like string [for time-series only]
+#3) a table exists if rows are in narrow consecutive order and share similarities --> scoring algo [DONE] 
+#4) each column is separated by more than x consecutive whitespace indicators (e.g. '  ' or '..')
 
-from __future__ import print_function
-import sys, os, re
+#Feature List Todo:
+#1) Acknowledge footnotes / make lower meta-data available
+#2) make delimiter length smartly dependent on number of columns (possible iterative approach)
+#3) improve captioning: expand non canonical values in tables [DONE] .. but not to the extent how types match up  --> use this to further
+## delineate between caption and headers
+#4) UI: parameterize extraction on the show page on the fly
+#5) deeper type inference on token level: type complex [DONE], subtype header (centered, capitalized), 
+## subtype page nr., type free flow [DONE, need paragraph]
+#5a) re
+#6) Respect negative values with potential '-' for numerical values
+#7)
+#8) classify tables with keywords (Muni Bonds) and unsupervised clustering (Hackathon)
+#9) Restructure folder and URI around MD5 hash (http://stackoverflow.com/questions/24570066/calculate-md5-from-werkzeug-datastructures-filestorage-without-saving-the-object)
+
+
+# In[2]:
+
+import sys
+import os
+import re
 
 import codecs
 import string
 
 from collections import Counter, OrderedDict
+
+config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
+          "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
+         "header_good_candidate_length" : 3, "complex_leftover_threshold" : 2, "min_canonical_rows" : 0.2}
+
+
+# In[3]:
 
 import json
 from flask import Flask, request, redirect, url_for, send_from_directory
@@ -47,12 +59,9 @@ import matplotlib.pyplot as plt
 from backend import return_tables, table_to_df
 
 
-config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
-          "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
-         "header_good_candidate_length" : 3, "complex_leftover_threshold" : 2, "min_canonical_rows" : 0.2}
+# ## Web App ##
 
-
-""" Web App """
+# In[7]:
 
 scripts = []
 css = [
@@ -116,6 +125,20 @@ def upload_file():
         title=TITLE ,
         css=css)
 
+
+
+@app.route('/get_tables/<filename>', methods=['GET', 'POST'])
+def get_tables(filename):   
+
+    project = request.args.get('project')    
+    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
+    
+    tables_path = path + '.tables.json'
+    with codecs.open(tables_path) as file:
+        tables = json.load(file)   
+
+    return json.dumps(tables)
+
 @app.route('/analyze/<filename>', methods=['GET', 'POST'])
 def analyze(filename):   
 
@@ -136,11 +159,11 @@ def analyze(filename):
     nr_data_rows = []
     #for t in tables.values():
     #    print t
-    for key, t in tables.items():
+    for key, t in tables.iteritems():
         e = t['end_line']
         b = t['begin_line']
         for l in range(b, e):
-            page = int(l / lines_per_page)
+            page = l / lines_per_page
             if len(nr_data_rows) <= page:
                 nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
             nr_data_rows[page] += 1
@@ -234,6 +257,8 @@ def inspector(filename):
         table_lines=table_lines, bottom_lines=bottom_lines, offset=offset, table_id=begin_line)
 
 
+# In[8]:
+
 def run_from_ipython():
     try:
         __IPYTHON__
@@ -241,9 +266,14 @@ def run_from_ipython():
     except NameError:
         return False
 
-if __name__ == "__main__":
-    if run_from_ipython():
-        app.run(host='0.0.0.0', port = 7080) #Borrow Zeppelin port for now
-    else:
-        PORT = int(os.getenv('PORT', 7080))
-        app.run(debug=True, host='0.0.0.0', port = PORT)
+if run_from_ipython():
+    app.run(host='0.0.0.0', port = 7080) #Borrow Zeppelin port for now
+else:
+    PORT = int(os.getenv('PORT', 8000))
+    app.run(debug=True, host='0.0.0.0', port = PORT)
+
+
+# In[ ]:
+
+
+
