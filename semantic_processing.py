@@ -18,14 +18,21 @@ def text_from_table(table):
     return " ".join( table_summary(table).values() )
 
 
-def connect_to_retina():
+def connect_to_retina( full = False,
+        apiServer="http://api.cortical.io/rest", retinaName="en_associative",
+        **kwargs):
     try:  
         os.environ["RETINA_SDK_KEY"]
     except KeyError: 
         print( "Please set the environment variable RETINA_SDK_KEY", file = sys.stderr)
     retina_sdk_key = os.environ['RETINA_SDK_KEY']
-    liteClient = retinasdk.LiteClient(retina_sdk_key)
-    return liteClient
+
+    if full:
+        client = retinasdk.FullClient
+    else:
+        client = retinasdk.LiteClient
+
+    return client(retina_sdk_key, apiServer=apiServer, retinaName=retinaName, **kwargs )
  
 def get_footprint_of_tables( tabledict ):
     
