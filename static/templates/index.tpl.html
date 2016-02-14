@@ -40,9 +40,11 @@
 					  </select>
 				  </div>
 			  </div>
-			<lf-ng-md-file-input lf-files="files08" lf-option="optoin08" lf-drag-and-drop-label="Drag and Drop PDF/txt files here!" lf-placeholder="Pick a file" lf-browse-label="Browse" lf-remove-label="Delete" multiple drag preview ng-disabled="disabled06"></lf-ng-md-file-input>
+			<lf-ng-md-file-input lf-files="files08" lf-option="optoin08" lf-drag-and-drop-label="Drag and Drop PDF/txt files here!" lf-placeholder="Pick a file" lf-browse-label="Browse" lf-remove-label="Delete" multiple drag preview ng-disabled="disabled06" ></lf-ng-md-file-input>
 			<br>
-			<md-button class="md-raised md-primary">Upload</md-button>
+
+		  		<input type="file" name="file" class="form-control">
+			<md-button class="md-raised md-primary" name="upload" id="upload" type="submit" value=Upload method="POST">Upload</md-button>
 		</form>
 		<div class="col-md-6">
 			<h2>View & Edit Project Settings</h2>

@@ -46,7 +46,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from backend import parse_tables, table_to_df
-from semantic_processing import get_footprint_of_tables, get_nearest_neighbors
+import  semantic_processing  as sempr
+#import get_footprint_of_tables, get_nearest_neighbors
 
 
 config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
@@ -110,6 +111,9 @@ class InputFile():
     def __init__(self, upload, project , filename):
 
         self.upload = upload
+
+        self.project_key = project if project is not None else "-"
+
         self.project = project if (project is not None and project is not "-") else ""
         self.filename = filename
 
@@ -126,9 +130,15 @@ class InputFile():
         return  os.path.join( self.upload, self.project, self.basename )
 
     @property
+    def projdir(self):
+        """ directory where tables from one source file are stored"""
+        return  os.path.join( self.upload, self.project, )
+
+    @property
     def filepath( self ):
         """ the path to the raw pdf file"""
         return  os.path.join( self.filedir)
+
 
    
 @app.route('/', methods=['GET', 'POST'])
@@ -184,11 +194,11 @@ def get_table(filename, project, table_id):
 @app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_similar_tables_all(filename, project, table_id):
 
-    if project == "-":
-        project = None
-        
+
+    upload = app.config['UPLOAD_FOLDER']
+    inp = InputFile(upload, project, filename)
     tables = [get_table_frontend(pr, fn, t_id) for fn, pr, t_id in \
-                        get_nearest_neighbors(project, filename, table_id, True)]
+                        sempr.get_nearest_neighbors(inp, table_id, True)]
     return json.dumps(tables)
     
     
@@ -197,7 +207,8 @@ def get_table_frontend(project, filename, table_id):
     upload = app.config['UPLOAD_FOLDER']
     inp = InputFile(upload, project, filename)
 
-    table_path = inp.filepath + "/" + table_id + '.table.json'
+    #table_path = inp.filepath + "/" + table_id + '.table.json'
+    table_path = os.path.join( inp.filedir , table_id + '.table.json')
     with codecs.open(table_path) as file:
         table = json.load(file)
 
@@ -206,7 +217,7 @@ def get_table_frontend(project, filename, table_id):
         captions[i]['type'] = table['types'][i]
         captions[i]['subtype'] = table['subtypes'][i]
         string_collated = (table['types'][i] + table['subtypes'][i])
-        sample_color = string_collated[0] + string_collated[-1] + string_collated[len(string_collated)/2]
+        sample_color = string_collated[0] + string_collated[-1] + string_collated[ int(len(string_collated)/2) ]
         captions[i]['color'] = "#F%sF%sF%s" % tuple(sample_color)
 
     rows = []
@@ -285,7 +296,7 @@ def analyze(filename):
     plt.close(fig)                      # close the figure
 
     #Export fingerprints (use same path as for tables)
-    for kk, vv in zip(tables.keys(), get_footprint_of_tables(tables.values())):
+    for kk, vv in zip(tables.keys(), sempr.get_footprint_of_tables(tables.values())):
         fingerprint_path = os.path.join( filedir, "%s" % kk)
         print( "fingerprint_path" , fingerprint_path)
         
@@ -313,8 +324,8 @@ def uploaded_file( filename ):
     
     def get_tables( filedir, suffix = '.table.json'):
         tablelist = list( filter( lambda x : x.endswith(suffix) , os.listdir( filedir ) ) )
-        if len( tablelist ) == 0:
-            analyze(path)
+        #if len( tablelist ) == 0:
+        #    analyze(path)
 
         for tf in filter( lambda x : x.endswith(suffix) , os.listdir( filedir ) ):
             with codecs.open( os.path.join(filedir,tf) )  as file:
@@ -323,7 +334,6 @@ def uploaded_file( filename ):
 
     tables = get_tables( filedir, suffix = '.table.json')
     dfs = (table_to_df(table).to_html() for table in tables )
-
 
     #Create HTML
     notices = ['Extraction Results for ' + filename, 'Ordered by lines']    
