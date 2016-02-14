@@ -64,7 +64,10 @@ css = [
     #"./css/style.css"
 ]
 js = [
-    "./thirdparty/angular/angular.js"
+    "./thirdparty/angular/angular.js",
+    "./js/app.js",
+    "./js/browser/controller.js",
+    "./js/browser/BrowserDirective.js"
 ]
 
 import matplotlib.pyplot as plt
