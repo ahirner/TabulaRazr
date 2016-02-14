@@ -4,3 +4,4 @@ static/ug/*
 /static/thirdparty
 bower_components/
 *.pyc
+backend.pyc
