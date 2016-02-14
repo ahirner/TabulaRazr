@@ -10,7 +10,8 @@ Main assumptions Table identificatin:
 1) each row is either in one line or not a row at all
 2) each column features at least one number (=dollar amount)
 2a) each column features at least one date-like string [for time-series only]
-3) a table exists if rows are in narrow consecutive order and share similarities --> scoring algo [DONE]
+3) a table exists if rows are in narrow consecutive order and share 
+arities --> scoring algo [DONE]
 4) each column is separated by more than x consecutive whitespace indicators (e.g. '  ' or '..')
 
 Feature List Todo:
@@ -45,6 +46,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from backend import parse_tables, table_to_df
+from semantic_processing import get_footprint_of_tables, get_nearest_neighbors
 
 
 config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
@@ -158,17 +160,29 @@ def upload_file():
         title=TITLE ,
         css=css)
 
-# + project, table_id in the query string
-@app.route('/api/get_table/<filename>', methods=['GET', 'POST'])
-def get_table(filename):
+# + project, table_id in the query string <--- not anymore, 
+@app.route('/api/get_table/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
+def get_table(filename, project, table_id):
 
-    project = request.args.get('project')
-    table_id = request.args.get('table_id')
+    if project == "-":
+        project = None
 
-    return get_table_json(filename, project, table_id)
+    return json.dumps(get_table_frontend(filename, project, table_id))
 
-def get_table_json(filename, project, table_id):
-    path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename, table_id)
+@app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
+def get_similar_tables_all(filename, project, table_id):
+    
+    if project == "-":
+        project = None
+    
+    tables = [get_table_frontend(fn, pr, t_id) for fn, pr, t_id in get_nearest_neighbors(project, filename, table_id, True)]
+    return json.dumps(tables)
+    
+    
+def get_table_frontend(filename, project, table_id):
+    path = os.path.join(app.config['UPLOAD_FOLDER'], filename, table_id)
+    if project:
+        path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename, table_id)        
 
     tables_path = path + '.table.json'
     with codecs.open(tables_path) as file:
@@ -195,7 +209,7 @@ def get_table_json(filename, project, table_id):
     _id['filename'] = filename
     _id['project'] = project
 
-    return json.dumps({'_id' : _id, 'meta' : captions, 'data' : rows})
+    return {'_id' : _id, 'meta' : captions, 'data' : rows}
    
 
 def page_statistics(table_dict,  lines_per_page = 80):
@@ -259,9 +273,15 @@ def analyze(filename):
     fig.savefig( chart_path)   # save the figure to file
     plt.close(fig)                      # close the figure
 
-    #if request.method == 'POST':
-    #    return json.dumps(tables)
-    
+    #Export fingerprints (use same path as for tables)
+    for kk, vv in zip(tables.keys(), get_footprint_of_tables(tables.values())):
+        fingerprint_path = os.path.join( filedir, "%s" % kk)
+        print( "fingerprint_path" , fingerprint_path)
+        
+        with codecs.open(fingerprint_path + '.fingerprint.json', 'w', "utf-8") as file:
+            json.dump(vv,  file)
+            
+
     return redirect(url_for('uploaded_file', filename=filename, project=project))
 
 @app.route('/browser')

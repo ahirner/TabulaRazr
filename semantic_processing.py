@@ -3,6 +3,7 @@ import os, logging
 import retinasdk
 from collections import OrderedDict
 import six
+import sys
 
 def table_summary(vv0):
     tablesummary = {}
@@ -27,7 +28,9 @@ def connect_to_retina( full = False,
     try:  
         os.environ["RETINA_SDK_KEY"]
     except KeyError: 
-        print( "Please set the environment variable RETINA_SDK_KEY", file = sys.stderr)
+        #Make that permanent for now
+        os.environ["RETINA_SDK_KEY"] = "c0f2fcf0-d2bd-11e5-8378-4dad29be0fab"
+        print( "Took fallback SDK key for now, set the environment variable RETINA_SDK_KEY", file = sys.stderr)
     retina_sdk_key = os.environ['RETINA_SDK_KEY']
 
     if full:
@@ -37,13 +40,17 @@ def connect_to_retina( full = False,
 
     return client(retina_sdk_key,  **kwargs )
  
-def get_footprint_of_tables( tabledict ):
+def get_footprint_of_tables( tables ):
     
     liteClient =  connect_to_retina()
-    for kk, vv in six.iteritems(tabledict):
+    for vv in tables:
         table_text = text_from_table(vv)
-        yield ( kk, liteClient.getFingerprint( table_text.encode('ascii', 'ignore')   ) )
+        yield liteClient.getFingerprint( table_text.encode('ascii', 'ignore'))
 
+def get_footprint_of_table(table):
+    liteClient =  connect_to_retina()
+    table_text = text_from_table(table)
+    return liteClient.getFingerprint( table_text.encode('ascii', 'ignore'))
 
 def get_pref_keys( names, pref = "" ):
     if pref is "":
@@ -55,7 +62,70 @@ def  get_suffix_keys( names, suffix = ""):
         return names
     return  filter( lambda x: x.endswith( suffix ), names)
 
-#def get_all_tables
+
+###### RANKING
+
+import json
+import codecs
+import six
+from itertools import chain, islice
+from backend import get_all_tables
+import operator
 
 
+#Is inversely correlated to distance
+def fingerprint_union_length(fp1, fp2):
+    return len(set(chain(fp1,fp2)))
+
+#Not sure about it
+def fingerprint_hamming_distance(fp1, fp2):
+    edits = 0
+    for i in range(TOTAL_BITS_FINGERPRINT):
+        if i in fp1 and i not in fp2:
+            edits += 1
+        if i in fp2 and i not in fp1:
+            edits += 1
+    return edits
+
+def fingerprint_jaccard_distance(fp1, fp2):
+    union = len(set(chain(fp1,fp2)))
+    intersect = len(set(fp1) & set(fp2))
+    return float(intersect) / union
+
+def get_all_project_tables(project=None):
+    
+    path = './static/ug'
+    if project:
+        path = os.path.join('./static/ug', project)
+            
+    for s in get_all_tables(path):
+        with codecs.open(os.path.join(path, s+'.table.json'), "r","utf-8") as file:
+            yield s, json.load(file)
+
+def get_nearest_neighbors(project, filename, table_id, exclude_self = False, max = 10):
+    
+    path = './static/ug'
+    if project:
+        path = os.path.join('./static/ug', project)
+    
+    with codecs.open(os.path.join(path, filename, table_id+'.fingerprint.json'),"r","utf-8") as file:
+        fingerprint = json.load(file)
+        #print(fingerprint)
+    
+    similarities = []
+    for other_path in get_all_tables(path):
+        other_filename, other_table_id = other_path.split(r"/")
+        if not (exclude_self and other_table_id == table_id and filename == other_filename):
+            other_path = os.path.join(path, other_filename, other_table_id+'.fingerprint.json')
+            try:
+                with codecs.open(other_path, "r","utf-8") as file:
+                    other_fp = json.load(file)
+                    sim = fingerprint_jaccard_distance(fingerprint, other_fp)
+                    similarities.append( (other_filename, other_table_id, sim))
+            except:
+                print("Didn't find fingerprint!", other_path)
+                
+    similarities.sort(key=operator.itemgetter(2), reverse=True)
+    for fn, t_id, sim in islice(similarities, 0, max):
+        yield fn, project, t_id
 
