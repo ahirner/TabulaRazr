@@ -105,10 +105,8 @@ def upload_file():
             filename = secure_filename(file.filename)
             filebase = basename( file.filename ) 
             filedir = os.path.join(app.config['UPLOAD_FOLDER'], project, filebase )
-            try:
-                os.mkdir(filedir)
-            except:
-                pass
+            if not os.path.isdir( filedir ):
+                os.makedirs(filedir)
             filepath =  os.path.join( filedir, filename )
             file.save( filepath )
              
