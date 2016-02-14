@@ -104,19 +104,16 @@ def get_all_project_tables(project=None):
         with codecs.open(os.path.join( inp.projdir , s+'.table.json'), "r","utf-8") as file:
             yield s, json.load(file)
 
-def get_nearest_neighbors(project, filename, table_id, exclude_self = False, max = 10):
+def get_nearest_neighbors( inpobj, table_id, exclude_self = False, max = 10):
     
-    upload = './static/ug'
-   
-    inp = srv.InputFile( upload, project, filename)
-    project_path = inp.projdir
-    table_path = os.path.join( inp.filedir, table_id +'.fingerprint.json')
+    project_path = inpobj.projdir
+    table_path = os.path.join( inpobj.filedir, table_id +'.fingerprint.json')
     with codecs.open( table_path ,"r","utf-8") as file:
         fingerprint = json.load(file)
         #print(fingerprint)
     
     similarities = []
-    for other_path in get_all_tables(path):
+    for other_path in get_all_tables( project_path ):
         other_filename, other_table_id = other_path.split(r"/")
         if not (exclude_self and other_table_id == table_id and filename == other_filename):
             other_path = os.path.join(project_path, other_filename, other_table_id+'.fingerprint.json')
@@ -130,5 +127,5 @@ def get_nearest_neighbors(project, filename, table_id, exclude_self = False, max
                 
     similarities.sort(key=operator.itemgetter(2), reverse=True)
     for fn, t_id, sim in islice(similarities, 0, max):
-        yield fn, project, t_id
+        yield fn, inpobj.project_key, t_id
 

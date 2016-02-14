@@ -98,6 +98,9 @@ class InputFile():
     def __init__(self, upload, project , filename):
 
         self.upload = upload
+
+        self.project_key = project if project is not None else "-"
+
         self.project = project if (project is not None and project is not "-") else ""
         self.filename = filename
 
@@ -174,8 +177,12 @@ def get_table(filename, project, table_id):
 
 @app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_similar_tables_all(filename, project, table_id):
+
+    upload = app.config['UPLOAD_FOLDER']
+    inp = InputFile(upload, project, filename)
+    
     tables = [get_table_frontend(pr, fn, t_id) for fn, pr, t_id in \
-                        sempr.get_nearest_neighbors(project, filename, table_id, True)]
+                        sempr.get_nearest_neighbors(inp, table_id, True)]
     return json.dumps(tables)
     
     
