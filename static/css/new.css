@@ -10,6 +10,10 @@ body {
 	right: 0;
 }
 
+.form-horizontal .control-label {
+	padding: 0;
+}
+
 .navbar-default {
 	background: #fff;
 	border-bottom: solid 1px #ccc;

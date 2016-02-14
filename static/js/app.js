@@ -1,5 +1,5 @@
 (function() {
-	var app = angular.module('tabularazr', ['ui.router']);
+	var app = angular.module('tabularazr', ['ui.router','ngMaterial','lfNgMdFileInput']);
 
 	app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', function ($stateProvider, $urlRouterProvider, $locationProvider) {
     $urlRouterProvider.otherwise('/');

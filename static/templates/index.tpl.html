@@ -2,8 +2,9 @@
 	<div class="content">
 		<h1>Extract and semantically link tabular data... Easily!</h1>
 
-		<form class="form form-horizontal" action="" method="post" enctype="multipart/form-data">
-			<div class="form-group">
+		<form class="form form-horizontal col-md-6" action="" method="post" enctype="multipart/form-data">
+			<h2>Upload Files</h2>
+			<!--<div class="form-group">
 				<label class="control-label col-sm-2">Select file</label>
 				<div class="col-sm-10">
 		  		<input type="file" name="file" class="form-control">
@@ -26,7 +27,21 @@
 		  	<div class="col-sm-10">
 		  		<input name="upload" id="upload" type="submit" value="Upload" class="btn btn-primary">
 		  	</div>
-		  </div>
+		  </div>-->
+		  
+		  <!-- Source: https://github.com/shuyu/angular-material-fileinput -->
+			<div class="form-group">
+			  	<label class="control-label col-sm-2">Project</label>
+	
+					<div class="col-sm-10">
+					  <select name="project">
+						  <option value="">/</option>
+						  <option value="muni_bonds">Municipal Bonds</option>              
+					  </select>
+				  </div>
+			  </div>
+			<lf-ng-md-file-input lf-files="files08" lf-option="optoin08" lf-placeholder="Pick a file" lf-browse-label="Browse" lf-remove-label="Delete" multiple drag preview ng-disabled="disabled06"></lf-ng-md-file-input>
+			<br><input name="upload" id="upload" type="submit" value="Upload" class="btn btn-primary">
 		</form>
 	</div>
 </div>
