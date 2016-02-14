@@ -115,7 +115,7 @@ def get_nearest_neighbors( inpobj, table_id, exclude_self = False, max = 10):
     similarities = []
     for other_path in get_all_tables( project_path ):
         other_filename, other_table_id = other_path.split(r"/")
-        if not (exclude_self and other_table_id == table_id and filename == other_filename):
+        if not (exclude_self and other_table_id == table_id and inpobj.basename == other_filename):
             other_path = os.path.join(project_path, other_filename, other_table_id+'.fingerprint.json')
             try:
                 with codecs.open(other_path, "r","utf-8") as file:
