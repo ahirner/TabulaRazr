@@ -178,16 +178,10 @@ def upload_file():
 # + project, table_id in the query string <--- not anymore, 
 @app.route('/api/get_table/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_table(filename, project, table_id):
-    if project == "-":
-        project = None
     return json.dumps(get_table_frontend(project, filename, table_id))
 
 @app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
 def get_similar_tables_all(filename, project, table_id):
-
-    if project == "-":
-        project = None
-        
     tables = [get_table_frontend(pr, fn, t_id) for fn, pr, t_id in \
                         get_nearest_neighbors(project, filename, table_id, True)]
     return json.dumps(tables)
@@ -198,7 +192,7 @@ def get_table_frontend(project, filename, table_id):
     upload = app.config['UPLOAD_FOLDER']
     inp = InputFile(upload, project, filename)
 
-    table_path = inp.filepath + "/" + table_id + '.table.json'
+    table_path = inp.filedir + "/" + table_id + '.table.json'
     with codecs.open(table_path) as file:
         table = json.load(file)
 
@@ -386,5 +380,5 @@ if __name__ == "__main__":
     if run_from_ipython():
         app.run(host='0.0.0.0', port = 7080) #Borrow Zeppelin port for now
     else:
-        PORT = int(os.getenv('PORT', 7080))
+        PORT = int(os.getenv('PORT', 7081))
         app.run(debug=True, host='0.0.0.0', port = PORT)
