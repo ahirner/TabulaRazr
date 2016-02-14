@@ -19,7 +19,6 @@ def text_from_table(table):
 
 
 def connect_to_retina( full = False,
-        apiServer="http://api.cortical.io/rest", retinaName="en_associative",
         **kwargs):
     try:  
         os.environ["RETINA_SDK_KEY"]
@@ -32,7 +31,7 @@ def connect_to_retina( full = False,
     else:
         client = retinasdk.LiteClient
 
-    return client(retina_sdk_key, apiServer=apiServer, retinaName=retinaName, **kwargs )
+    return client(retina_sdk_key,  **kwargs )
  
 def get_footprint_of_tables( tabledict ):
     
@@ -40,3 +39,19 @@ def get_footprint_of_tables( tabledict ):
     for kk, vv in six.iteritems(tabledict):
         table_text = text_from_table(vv)
         yield ( kk, liteClient.getFingerprint( table_text.encode('ascii', 'ignore')   ) )
+
+
+def get_pref_keys( names, pref = "" ):
+    if pref is "":
+        return names
+    return filter( lambda x: x.startswith( pref + "/"), names )
+
+def  get_suffix_keys( names, suffix = ""):
+    if suffix is "":
+        return names
+    return  filter( lambda x: x.endswith( suffix ), names)
+
+#def get_all_tables
+
+
+
