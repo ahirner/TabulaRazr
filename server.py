@@ -44,7 +44,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from backend import return_tables, table_to_df
+from backend import parse_tables, table_to_df
 
 
 config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
@@ -128,6 +128,24 @@ def get_tables(filename):
         tables = json.load(file)   
 
     return json.dumps(tables)
+        
+def page_statistics(table_dict,  lines_per_page = 80):
+    nr_data_rows = []
+    #for t in tables.values():
+    #    print t
+    for key, t in table_dict.items():
+        e = t['end_line']
+        b = t['begin_line']
+        for l in range(b, e):
+            page = int(l / lines_per_page)
+            if len(nr_data_rows) <= page:
+                nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
+            nr_data_rows[page] += 1
+    chart = pd.DataFrame()
+    chart['value'] = nr_data_rows
+    chart['page'] = range(0, len(chart))
+    return chart 
+
 
 @app.route('/analyze/<filename>', methods=['GET', 'POST'])
 def analyze(filename):   
@@ -138,28 +156,14 @@ def analyze(filename):
     if not os.path.isfile(txt_path):
         return {'error' : txt_path+' not found' }
     
-    tables = return_tables(txt_path)
+    tables = parse_tables(txt_path)
     
     #Export tables
     with codecs.open(txt_path + '.tables.json', 'w', "utf-8") as file:
         json.dump(tables, file)
 
     #Export chart
-    lines_per_page = 80
-    nr_data_rows = []
-    #for t in tables.values():
-    #    print t
-    for key, t in tables.items():
-        e = t['end_line']
-        b = t['begin_line']
-        for l in range(b, e):
-            page = int(l / lines_per_page)
-            if len(nr_data_rows) <= page:
-                nr_data_rows += ([0]*(page-len(nr_data_rows)+1))
-            nr_data_rows[page] += 1
-    dr = pd.DataFrame()
-    dr['value'] = nr_data_rows
-    dr['page'] = range(0, len(dr))
+    dr = page_statistics(tables,  lines_per_page = 80)
 
     #plot the row density
     chart = filename+".png"
