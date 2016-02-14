@@ -380,3 +380,36 @@ def table_to_df(table):
     df.columns = table['captions']
     return df
 
+
+def get_all_tables( uploaddir , suffix = ".table.json"):
+    listing1 = os.listdir( uploaddir )
+    tablekeys = []
+    #projectkeys =  [ x in listing1 if os.path.isdir(x) ]
+    for ff in os.listdir( uploaddir ):
+        if ff.endswith(suffix):
+            key = ff.replace(suffix, "")
+            #print( key )
+            yield key 
+            continue
+    for x in os.walk( uploaddir ):
+        for dd  in x[1]:
+            for ff in os.listdir( os.path.join( uploaddir, dd) ) :
+                if ff.endswith(suffix):
+                    key = os.path.join( dd, ff.replace( suffix, "") )
+                    #print( key)
+                    yield key   
+                    continue
+
+        for pp  in x[1]:
+            for dd in filter( lambda x: os.path.isdir( x ) , os.listdir( os.path.join( uploaddir,pp)) ):
+                for ff in os.listdir( os.path.join( uploaddir, pp,  dd) ) :
+                    if ff.endswith(suffix):
+                        key = os.path.join( dd, ff.replace( suffix, "") )
+                        #print( key)
+                        yield key   
+                        continue
+
+
+
+
+
