@@ -124,12 +124,13 @@ def get_table_json(filename, project, table_id):
         for j, c in enumerate(captions):
             row[c['value']] = table['data'][i][j]
         rows.append(row)
-        
-    captions['table_id'] = table_id
-    captions['filename'] = filename
-    captions['project'] = project
+     
+    _id = {}
+    _id['table_id'] = table_id
+    _id['filename'] = filename
+    _id['project'] = project
 
-    return json.dumps({'meta' : captions, 'data' : rows})
+    return json.dumps({'_id' : _id, 'meta' : captions, 'data' : rows})
 
 
 
@@ -224,7 +225,6 @@ def analyze(filename):
 
     xticks = np.arange(0, np.ceil(max( dr['page'] )) + 2 )
     ax.set_xticks(xticks)
-    ax.set_xlim([0, xticks[-1]] )
     fig.tight_layout()
     fig.savefig(txt_path + '.png')   # save the figure to file
     plt.close(fig)                      # close the figure
@@ -243,7 +243,7 @@ def test():
         js=js)
 
 @app.route('/show/<filename>')
-def uploaded_file( filename ):
+def uploaded_file( path ):
 
     project = request.args.get('project')    
     path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
@@ -276,9 +276,7 @@ def uploaded_file( filename ):
 
 @app.route('/inspector/<filename>')
 def inspector(filename):
-    project = request.args.get('project')
-    project = project if project is not None else ""
-    print("project:", project)
+    project = request.args.get('project')    
     path = os.path.join(app.config['UPLOAD_FOLDER'], project, filename)
  
     begin_line = int(request.args.get('data_begin'))
