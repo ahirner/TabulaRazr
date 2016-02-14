@@ -1,0 +1,34 @@
+<section class="browser animate slide-in-left">
+  <div class="browser-wrapper">
+    <div class="left fill">
+      <div class="top">
+        <ul>
+          <li ng-repeat="item in test">{{item.header}}</li>
+        </ul>
+      </div>
+      <div class="bot">
+        {{sort}}
+      </div>
+    </div>
+    <div class="right fill">
+      <div class="right-wrapper">
+        <table class="table table-striped dataframe" width="100%">
+          <thead>
+            <tr style="text-align: right;">
+              <th ng-repeat="header in data.meta"
+                  ng-click="setSort(header.value)"
+                  class="ng-class:{'active': sort.by === header.value}">
+                  {{header.value}}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in data.data | orderBy:row.valuesort.by:sort.rev">
+              <td ng-repeat="header in data.meta">{{row[header.value].value}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

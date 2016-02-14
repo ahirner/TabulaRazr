@@ -59,13 +59,26 @@ config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" 
 scripts = []
 css = [
     "./thirdparty/bootstrap/dist/css/bootstrap.min.css",
+    "./thirdparty/metisMenu/dist/metisMenu.min.css",
+    "./thirdparty/startbootstrap-sb-admin-2/dist/css/timeline.css",
+    "./thirdparty/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css",
+    "./thirdparty/morrisjs/morris.css",
+    "./thirdparty/font-awesome/css/font-awesome.min.css",
+    "./thirdparty/lf-ng-md-file-input/dist/lf-ng-md-file-input.css",
+    "./thirdparty/angular-material/angular-material.min.css",
     "./css/new.css"
-    #"./css/main.css",
-    #"./css/style.css"
 ]
 
 js = [
-    "./thirdparty/angular/angular.js"
+    "./thirdparty/angular/angular.js",
+    "./thirdparty/angular-ui-router/release/angular-ui-router.js",
+    "./js/app.js",
+    "./js/browser/controller.js",
+    "./js/browser/BrowserDirective.js",
+    "./thirdparty/lf-ng-md-file-input/dist/lf-ng-md-file-input.js",
+    "./thirdparty/angular-animate/angular-animate.min.js",
+    "./thirdparty/angular-aria/angular-aria.min.js",
+    "./thirdparty/angular-material/angular-material.min.js"
 ]
 
 
@@ -158,7 +171,8 @@ def upload_file():
 
     return render_template('index.html',
         title=TITLE ,
-        css=css)
+        css=css,
+        js=js)
 
 # + project, table_id in the query string <--- not anymore, 
 @app.route('/api/get_table/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
@@ -287,18 +301,18 @@ def analyze(filename):
 @app.route('/browser')
 def test():
 
-    return render_template('semantic-browser.html',
+    return render_template('index.html',
         TITLE='Semantic-Browser',
         css=css,
         js=js)
-
+    
 @app.route('/show/<filename>')
 def uploaded_file( filename ):
     upload = app.config['UPLOAD_FOLDER']
     project = request.args.get('project')
     inp = InputFile(upload, project, filename)
     filebase = inp.basename 
-    filedir = inp.filedir 
+    filedir = inp.filedir
     
     def get_tables( filedir, suffix = '.table.json'):
         tablelist = list( filter( lambda x : x.endswith(suffix) , os.listdir( filedir ) ) )

@@ -10,22 +10,57 @@ body {
 	right: 0;
 }
 
+.form-horizontal .control-label {
+	padding: 0;
+}
+
 .navbar-default {
 	background: #fff;
-	border-bottom: solid 1px #aaabae;
+	border-bottom: solid 1px #ccc;
 }
 
 .navbar-brand {
-	padding: 0;
+	padding: 2px 30px;
 	height: 75px;
 }
 
+.navbar-nav {
+	line-height: 75px;
+}
+
+.navbar-default .navbar-nav > li > a {
+  line-height: 75px;
+  padding: 0 20px;
+  font-size: 18px;
+  color: #24b0f0;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+	color: #333;
+}
+
+.main,
 .browser {
 	position: absolute;
 	top: 75px;
 	bottom: 0;
 	right: 0;
 	left: 0;
+}
+
+.browser {
+	top: 0;
+}
+
+.main-wrapper {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	right: 20px;
+	bottom: 20px;
+	overflow-y: auto;
+	background: #fff;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
 .browser-wrapper {
@@ -36,22 +71,28 @@ body {
 	overflow-y: auto;
 }
 
+.content {
+	padding: 10px 40px;
+}
+
 .browser-wrapper .left {
-	background: #ff0099;
+	background: #fff;
 	-webkit-display: flex;
 	-webkit-flex: 1;
 	display: flex;
 	flex: 1;
 	position: relative;
+	border-right: 1px solid #ccc;
 }
 
 .left .top {
-	background: #9900ff;
 	top: 0;
   bottom: 50%;
   left: 0;
   right: 0;
   position: absolute;
+  border-bottom: 1px solid #ccc;
+  overflow-y: auto;
 }
 
 .left .bot {
@@ -60,6 +101,7 @@ body {
   left: 0;
   right: 0;
   position: absolute;
+  overflow-y: auto;
 }
 
 .browser-wrapper .right {
@@ -75,6 +117,33 @@ body {
 .right-wrapper {
 	top: 0;
 	bottom: 0;
-	left: 0;
-	right: 0;
+	width: 100%;
+}
+
+/* tables */
+th.active {
+	color: #24b0f0;
+}
+
+/* animations */
+.animate {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes slideInLeft {
+	from {
+		opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+    visibility: visible;
+  }
+
+  to {
+  	opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.slide-in-left {
+  animation-name: slideInLeft;
 }
