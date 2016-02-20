@@ -151,14 +151,13 @@ def upload_file():
     if request.method == 'POST':
         
         file = request.files['file']
-        project = request.form['project']
         
         if file and allowed_file(file.filename):
             extension = get_extension(file.filename)
             filename = secure_filename(file.filename)
 
             upload = app.config['UPLOAD_FOLDER']
-            project = request.args.get('project')
+            project = request.form['project']
             inp = InputFile(upload, project, filename)
             filebase = inp.basename
             filedir = inp.filedir
@@ -257,7 +256,7 @@ def page_statistics(table_dict,  lines_per_page = 80):
 def analyze(filename):   
     upload = app.config['UPLOAD_FOLDER']
     project = request.args.get('project')
-    print("project:", project)
+
     inp = InputFile(upload, project, filename)
     filebase = inp.basename
     filedir = inp.filedir
