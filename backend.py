@@ -409,7 +409,26 @@ def get_all_tables( uploaddir , suffix = ".table.json"):
                         yield key   
                         continue
 
+def _cast_num_(ds, thousandsep = ",", decimalsep = "."):
+    "casts a pandas Series to numeric"
+    ds = ds.map(lambda x: x.replace(thousandsep, ""))
+    if ds.map(lambda x : decimalsep in x).any():
+        return ds.astype(float)
+    else:
+        return ds.astype(int)
+    
+def _subset_numeric_bloc_(df, thr = 1/4):
+    "returns a numeric part, leaving data un-casted"
+    isnumericcol = df.applymap(isnumeric).mean() > 1- thr
+    isnumericrow = df.loc[:,isnumericcol].applymap(isnumeric).all(1)
+    return df.loc[isnumericrow,isnumericcol]
 
-
+def subset_and_cast_numeric_bloc(df, thousandsep = ",", decimalsep = ".", thr = 1/4):
+    "takes a numeric part of the table and casts it into numeric types (int or float)"
+    dfnum = _subset_numeric_bloc_(df, thr = thr)
+    caster = lambda ds: _cast_num_(ds, thousandsep = thousandsep, decimalsep = decimalsep)
+    for ii in range(len(dfnum.columns)):
+        dfnum.iloc[:,ii] = caster(dfnum.iloc[:,ii])
+    return dfnum
 
 
