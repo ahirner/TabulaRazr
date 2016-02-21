@@ -234,7 +234,7 @@ def get_table_frontend(project, filename, table_id):
     _id['filename'] = filename
     _id['project'] = project
 
-    return {'_id' : _id, 'meta' : captions, 'data' : rows}
+    return {'_id' : _id, 'meta' : captions, 'data' : rows, 'header' : table['header']}
    
 
 def page_statistics(table_dict,  lines_per_page = 80):
