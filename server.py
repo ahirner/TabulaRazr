@@ -219,7 +219,7 @@ def get_table_frontend(project, filename, table_id):
         captions[i]['type'] = table['types'][i]
         captions[i]['subtype'] = table['subtypes'][i]
         string_collated = (table['types'][i] + table['subtypes'][i])
-        sample_color = string_collated[0] + string_collated[-1] + string_collated[len(string_collated)/2]
+        sample_color = string_collated[0] + string_collated[-1] + string_collated[int(len(string_collated)/2)]
         captions[i]['color'] = "#F%sF%sF%s" % tuple(sample_color)
 
     rows = []
