@@ -106,26 +106,28 @@ def get_all_project_tables(project=None):
 
 def get_nearest_neighbors( inpobj, table_id, exclude_self = False, max = 10):
     
-    project_path = inpobj.projdir
-    table_path = os.path.join( inpobj.filedir, table_id +'.fingerprint.json')
-    with codecs.open( table_path ,"r","utf-8") as file:
-        fingerprint = json.load(file)
-        #print(fingerprint)
-    
-    similarities = []
-    for other_path in get_all_tables( project_path ):
-        other_filename, other_table_id = other_path.split(r"/")
-        if not (exclude_self and other_table_id == table_id and inpobj.basename == other_filename):
-            other_path = os.path.join(project_path, other_filename, other_table_id+'.fingerprint.json')
-            try:
-                with codecs.open(other_path, "r","utf-8") as file:
-                    other_fp = json.load(file)
-                    sim = fingerprint_jaccard_distance(fingerprint, other_fp)
-                    similarities.append( (other_filename, other_table_id, sim))
-            except:
-                print("Didn't find fingerprint!", other_path)
-                
-    similarities.sort(key=operator.itemgetter(2), reverse=True)
-    for fn, t_id, sim in islice(similarities, 0, max):
-        yield fn, inpobj.project_key, t_id
+    try:
+        project_path = inpobj.projdir
+        table_path = os.path.join( inpobj.filedir, table_id +'.fingerprint.json')
+        with codecs.open( table_path ,"r","utf-8") as file:
+            fingerprint = json.load(file)
+            #print(fingerprint)
 
+        similarities = []
+        for other_path in get_all_tables( project_path ):
+            other_filename, other_table_id = other_path.split(r"/")
+            if not (exclude_self and other_table_id == table_id and inpobj.basename == other_filename):
+                other_path = os.path.join(project_path, other_filename, other_table_id+'.fingerprint.json')
+                try:
+                    with codecs.open(other_path, "r","utf-8") as file:
+                        other_fp = json.load(file)
+                        sim = fingerprint_jaccard_distance(fingerprint, other_fp)
+                        similarities.append( (other_filename, other_table_id, sim))
+                except:
+                    print("Didn't find fingerprint!", other_path)
+
+        similarities.sort(key=operator.itemgetter(2), reverse=True)
+        for fn, t_id, sim in islice(similarities, 0, max):
+            yield fn, inpobj.project_key, t_id
+    except:
+        pass

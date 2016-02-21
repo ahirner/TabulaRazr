@@ -151,14 +151,13 @@ def upload_file():
     if request.method == 'POST':
         
         file = request.files['file']
-        project = request.form['project']
         
         if file and allowed_file(file.filename):
             extension = get_extension(file.filename)
             filename = secure_filename(file.filename)
 
             upload = app.config['UPLOAD_FOLDER']
-            project = request.args.get('project')
+            project = request.form['project']
             inp = InputFile(upload, project, filename)
             filebase = inp.basename
             filedir = inp.filedir
@@ -257,7 +256,7 @@ def page_statistics(table_dict,  lines_per_page = 80):
 def analyze(filename):   
     upload = app.config['UPLOAD_FOLDER']
     project = request.args.get('project')
-    print("project:", project)
+
     inp = InputFile(upload, project, filename)
     filebase = inp.basename
     filedir = inp.filedir
@@ -272,7 +271,6 @@ def analyze(filename):
     """Export tables"""
     for kk, vv in six.iteritems(tables):
         table_path = os.path.join( filedir, "%s" % kk)
-        print( "table_path" , table_path)
         with codecs.open(table_path + '.table.json', 'w', "utf-8") as file:
             json.dump( vv ,  file)
 
@@ -300,7 +298,6 @@ def analyze(filename):
     #Export fingerprints (use same path as for tables)
     for kk, vv in zip(tables.keys(), sempr.get_footprint_of_tables(tables.values())):
         fingerprint_path = os.path.join( filedir, "%s" % kk)
-        print( "fingerprint_path" , fingerprint_path)
         
         with codecs.open(fingerprint_path + '.fingerprint.json', 'w', "utf-8") as file:
             json.dump(vv,  file)
@@ -349,7 +346,6 @@ def uploaded_file( filename ):
         else:
             headers.append('-')
 
-    print( "meta_data",  meta_data )
     chart_path = os.path.join(filedir, "chart"  + '.png' )
     return render_template('viewer.html',
         title=TITLE + ' - ' + filename,
@@ -360,7 +356,7 @@ def uploaded_file( filename ):
 def inspector(filename):
     upload = app.config['UPLOAD_FOLDER']
     project = request.args.get('project')
-    print("project:", project)
+    
     inp = InputFile(upload, project, filename)
     filebase = inp.basename 
  
