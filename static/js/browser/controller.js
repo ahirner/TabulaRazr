@@ -1,12 +1,13 @@
 (function() {
   angular.
   module('tabularazr').
-  controller('BrowserCtrl', ['$scope', '$http', '$state', BrowserCtrl]);
+  controller('BrowserCtrl', ['$scope', '$http', '$state', '$location',  BrowserCtrl]);
 
-  function BrowserCtrl($scope, $http, $state) {
+  function BrowserCtrl($scope, $http, $state, $location) {
     var indexOfExtension = $state.params.filename.split('.');
     var filename = indexOfExtension[0];
     var table_id = $state.params.table_id;
+    var project = $location.search().project || "-";
     $scope.sort = {
       rev: true
     };
@@ -18,7 +19,7 @@
     }
 
     function buildUrl(data) {
-      var apiUrlForSimilarTables = "http://0.0.0.0:7081/api/get_similar_tables_all/" +
+      var apiUrlForSimilarTables = 'http://'+window.location.host+"/api/get_similar_tables_all/" +
         (data["_id"].project || "-") + "/" +
         (data["_id"].filename) + "/" +
         (data["_id"].table_id);
@@ -26,7 +27,7 @@
       getSimilar(apiUrlForSimilarTables)
     }
 
-    $http.get('http://0.0.0.0:7081/api/get_table/-/' + filename + '/' + table_id).then(function(response) {
+    $http.get('http://'+window.location.host+'/api/get_table/'+project+'/' + filename + '/' + table_id).then(function(response) {
       $scope.data = response.data;
       $scope.sort.by = $scope.data.meta[0].value;
 
