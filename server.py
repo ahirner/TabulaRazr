@@ -50,6 +50,8 @@ from backend import parse_tables, table_to_df
 
 import  semantic_processing  as sempr
 
+# for cross origin
+from flask.ext.cors import CORS
 
 config = { "min_delimiter_length" : 4, "min_columns": 2, "min_consecutive_rows" : 3, "max_grace_rows" : 4,
           "caption_assign_tolerance" : 10.0, "meta_info_lines_above" : 8, "threshold_caption_extension" : 0.45,
@@ -91,6 +93,7 @@ TITLE = "TabulaRazr"
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+CORS(app)
 
 def get_extension(filename):
     return '.' in filename and            filename.rsplit('.', 1)[1]
@@ -193,7 +196,8 @@ def upload_file():
 def get_table(filename, project, table_id):
     return json.dumps(get_table_frontend(project, filename, table_id))
 
-@app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>', methods=['GET', 'POST'])
+@app.route('/api/get_similar_tables_all/<project>/<filename>/<table_id>')
+
 def get_similar_tables_all(filename, project, table_id):
 
     upload = app.config['UPLOAD_FOLDER']
