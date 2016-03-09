@@ -4,7 +4,8 @@ Browser = React.createClass({
     this.getTables();
 
     return {
-      tables: []
+      tables: [],
+      activeTable: null
     }
   },
 
@@ -12,25 +13,41 @@ Browser = React.createClass({
     return HTTP.call("GET","http://0.0.0.0:7081/api/get_similar_tables_all/muni_bonds/2012_msw_dat_tbls/1648", {},
       (error, result) => {
         if (!error) {
-          console.log(JSON.parse(result.content));
+          var data = JSON.parse(result.content);
+          var mappedData = data.map(function(dataItem) {
+          	var map = {};
+          	map[dataItem._id.table_id] = dataItem;
+          	return map;
+          });
+
+          console.log(mappedData);
+
           this.setState({tables: JSON.parse(result.content)});
         }
       }
     );
   },
 
-  setActiveTable(event) {
-  	console.log(event);
+  handleTableLinkClick(id, event) {
+  	this.setState({
+  		activeTable: parseInt(id)
+  	});
   },
  
-  renderTables() {
+  renderTableLinks() {
     if (!this.state.tables.length) {
       return <li>Unfortunately, we could not retrieve any tables.</li>;
     } else {
-      return this.state.tables.map((table) => {
-        return <Table table={table} key={table._id.table_id} handleClick={this.setActiveTable} />;
+      return this.state.tables.map((table, i) => {
+				var onClick = this.handleTableLinkClick.bind(this, table._id.table_id);
+
+        return <TableLink table={table} key={table._id.table_id} onClick={onClick} />;
       });
     }
+  },
+
+  renderTable(id) {
+  	console.log(id);
   },
  
   render() {
@@ -39,12 +56,14 @@ Browser = React.createClass({
         <div className="left">
           <h3>Similar Tables in Project</h3>
           <ul>
-            {this.renderTables()}
+            {this.renderTableLinks()}
           </ul>
         </div>
 
         <div className="right">
-        	<h3>Viewing Table: </h3>
+        	<h3>Viewing Table: {this.state.activeTable || 'No Selection'}</h3>
+
+        	{this.renderTable(this.state.activeTable)}
         </div>
       </div>
     );

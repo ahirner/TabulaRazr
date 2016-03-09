@@ -1,4 +1,4 @@
-Table = React.createClass({
+TableLink = React.createClass({
   propTypes: {
     // This component gets the table to display through a React prop.
     // We can use propTypes to indicate it is required
@@ -11,7 +11,9 @@ Table = React.createClass({
     const tableClassName = this.props.table.checked ? "checked" : "";
  
     return (
-      <span>"hello"</span>
+      <li className={tableClassName}>
+        <a onClick={this.props.onClick} className="text">{this.props.table._id.filename} - {this.props.table._id.project} - {this.props.table._id.table_id}</a>
+      </li>
     );
   }
 });
