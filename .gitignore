@@ -1,7 +1,9 @@
 cf
 nohup.out
+ui/nohup.out
 static/ug/*
 /static/thirdparty
 bower_components/
 *.pyc
 backend.pyc
+.ipynb_checkpoints/
