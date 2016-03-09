@@ -11,14 +11,13 @@ Table = React.createClass({
 
   renderCells(row, ri) {
   	return this.props.table.meta.map((cell, ci) => {
-  		console.log(row[cell.value].value);
-			return <td key={"row-" + ri + "-cell-" + ci}>Data</td>;
+			return <td key={"row-" + ri + "-cell-" + ci}>{row[cell.value].value}</td>;
 		});
   },
 
   renderRows() {
-  	return this.props.table.data.forEach((row, ri) => {
-  		return <tr key={"row-" + ri}>Row {this.renderCells(row, ri)}</tr>;
+  	return this.props.table.data.map((row, ri) => {
+  		return <tr key={"row-" + ri}>{this.renderCells(row, ri)}</tr>;
   	});
   },
 
