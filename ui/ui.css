@@ -59,6 +59,12 @@ li {
   text-transform: uppercase;
 }
 
+th {
+  text-align: left;
+  font-weight: bold;
+  padding: 5px 0;
+}
+
 /* BROWSER */
 .container {
   display: flex;
@@ -71,6 +77,11 @@ li {
 
 .right {
   flex: 0.65;
+}
+
+.browser-table {
+  padding: 20px;
+  border: 1px solid #ccc;
 }
 
 
